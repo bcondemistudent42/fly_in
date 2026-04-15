@@ -1,10 +1,20 @@
 import os
 
-class HUB
 
-
-# to do a class hub to initiatilize, with a list of connection as a list
-# do attributes start and end
+class Hubs:
+    def __init__(
+                 self,
+                 name: str,
+                 x: int,
+                 y: int,
+                #  color: str,
+                #  zone_type: str
+                 ):
+        self.name = name
+        self.x = int(x)
+        self.y = int(y)
+        # to add some chekc for zone wtype and colors and list of connections
+        # to add colors, zone type by default and list of connections
 
 
 def get_maps() -> list | None:
@@ -20,34 +30,51 @@ def get_maps() -> list | None:
 def map_valid(my_map):
     with open("maps/" + my_map) as f:
         my_hubs = {}
-        my_start_end_hub["start_hub"] = {}
-        my_dict = {}
+        my_hubs["start_hub"] = {}
+        my_hubs["end_hub"] = {}
         format_error = "Format Error: Must respect pattern 'nb_drones: int'"
         i = 0
+        j = 1
         for line in f:
             if line.startswith("#") or len(line.strip()) == 0:
                 pass
             elif ":" not in line:
-                raise ValueError(format_error)
+                raise ValueError(format_error + f"Line: {j}")
             else:
                 if i == 0 and "nb_drones" not in line:
-                    raise ValueError("First line must be 'nb_drones'")
+                    raise ValueError(f"First line must be 'nb_drones', Line: {j}")
                 elif i == 0:
                     temp = line.split(":")
                     int(temp[1])
                     if temp[0] != "nb_drones":
-                        raise ValueError(format_error)
+                        raise ValueError(format_error + f"Line: {j}")
                     else:
-                        my_dict["nb_drones"] = int(temp[1])
-                        print(my_dict)
+                        my_hubs["nb_drones"] = int(temp[1])
                 else:
-                    temp = line.split(":")
-                    if temp[0] == "start_hub":
-                        if my_dict["start_hub"] != {}:
-                            raise ValueError("Cannot init twice start_hub")
-                        
-                i = 1
+                    key = line.split(":")
+                    data = key[1].split()
+                    if key[0] == "start_hub":
+                        if my_hubs["start_hub"] != {}:
+                            raise ValueError("Can't init twice start,"
+                                             f"Line: {j}")
+                        my_hubs["start_hub"] = Hubs(data[0], data[1], data[2]) #a voir pour les couleurs 
+                    elif key[0] == "end_hub":
+                        if my_hubs["end_hub"] != {}:
+                            raise ValueError(f"Cannot init twice end_hub, Line: {j}")
+                        my_hubs["end_hub"] = Hubs(data[0], data[1], data[2])
+                    elif key[0] == "hub":
+                        my_hubs[data[0]] = Hubs(data[0], data[1], data[2])
+                    else:
+                        raise ValueError(f"Unknown Type, {format_error}, Line: {j}")
 
+# to do later the connections stuff to handle
+                i = 1
+            j += 1
+    for elt in my_hubs.values():
+        try:
+            print(elt.name)
+        except Exception:
+            pass
 
 
 def main():
