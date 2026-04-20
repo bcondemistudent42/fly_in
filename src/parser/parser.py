@@ -1,4 +1,6 @@
 import os
+import re
+
 from enum import StrEnum
 
 
@@ -17,6 +19,14 @@ class ZoneType(StrEnum):
     PRIORITY = "priority"
 
 
+def extract_zone(meta_string):
+    pattern = r"zone=([^\]\s]+)"
+    match = re.search(pattern, meta_string)
+    if match:
+        return match.group(1)
+    return str(ZoneType.NORMAL)
+
+
 class Hubs:
     def __init__(
                  self,
@@ -25,8 +35,8 @@ class Hubs:
                  y: str,
                  check: tuple,
                  zone_type=ZoneType.NORMAL,
-                 max_capacity=1
-                #  color: str,
+                 max_capacity=1,
+                 color="white"
                  ):
         self.name = name
         self.x = int(x)
@@ -34,6 +44,7 @@ class Hubs:
         self.links = []
         self.start, self.end = check
         self.max_flow = int(max_capacity)
+        self.color = color  # to see the securities
         if zone_type == ZoneType.NORMAL:
             self.cost = float(1)
         elif zone_type == ZoneType.BLOCKED:
@@ -45,7 +56,7 @@ class Hubs:
         else:
             raise ValueError(f"Wrong zone type: {zone_type} does not exist")
 
-        # to add some chekc for zone wtype and colors and list of connections
+        # to add some check for zone type and colors and list of connections
         # to add colors, zone type by default and list of connections
 
 
@@ -93,7 +104,9 @@ def map_valid(my_map):
                 else:
                     key = line.split(":")
                     data = key[1].split()
+                    print(data[-1])
                     if key[0] == Utils.START_HUB:
+                        # print(data[3])
                         if start_name != "":
                             raise ValueError("Can't init twice start,"
                                              f"Line: {j}") #a voir pour les couleurs
@@ -104,7 +117,9 @@ def map_valid(my_map):
                                                 data[2],
                                                 (True, False)
                                                 )
+                        # faire le regex extract end mais que sur la fin
                     elif key[0] == Utils.END_HUB:
+                        # print(data[3])
                         if end_name != "":
                             raise ValueError(
                                   f"Cannot init twice end_hub, Line: {j}"
@@ -114,11 +129,14 @@ def map_valid(my_map):
                                                 data[0], data[1], data[2],
                                                 (False, True)
                                                 )
+                        # faire le regex extract end mais que sur le dernier du split
                     elif key[0] == Utils.HUB:
+                        # print(data[3])
                         my_hubs[data[0]] = Hubs(data[0],
                                                 data[1],
                                                 data[2],
                                                 (False, False))
+                        # faire le regex extract end mais que sur la fin
                     elif key[0] == Utils.CONNECTION:
                         my_hubs["hubs_links"].append(key[1].strip())
                     else:
@@ -159,24 +177,6 @@ def make_links(my_map):
         my_map[temp[1]].links.append(temp[0])
     return my_map
 
-
-
-
-# to do later the connections stuff to handle
-    # for elt in my_hubs.values():
-    #     try:
-    #         print(elt.name)
-    #     except Exception:
-    #         if isinstance(elt, int):
-    #             print(elt)
-    #         else:
-    #             print("=== lst :")
-    #             for elt1 in elt:
-    #                 print(elt1)
-    #             print("end lst ===")
-    #         pass
-
-
 # to see how to choose the map, with or without display
 # within display maybe choose all available maps
 
@@ -192,16 +192,14 @@ def main():
         return
     valid_maps = []
     for elt in maps:
+        print(elt)
         full_maps[elt] = map_valid(elt)
         valid_maps.append(elt)
+        print()
     choosen_map = "02_simple_fork.txt"  #to define after full_maps created
     if choosen_map not in valid_maps:
         raise ValueError("The choosen map is not valid")
     displayable_map = make_links(full_maps[choosen_map])
-    for elt in displayable_map.values():
-        if isinstance(elt, Hubs):
-            print(elt.name, elt.links)
-            print()
 
 if __name__ == "__main__":
     try:
@@ -209,3 +207,7 @@ if __name__ == "__main__":
     except BaseException as e:
         print(e)
 # to add try except for main at the end
+
+
+# to finish regex for max drone also do for all metadata
+#  use regex also to extract the [] metadata
