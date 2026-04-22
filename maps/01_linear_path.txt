@@ -1,11 +1,14 @@
 # Easy Level 1: Simple linear path
+# The same connection must not appear more than once (e.g., a-b and b-a are con-
+# sidered duplicates)
+#negativ
 nb_drones: 2
 
-start_hub: start 0 0 [color=green]
-hub: waypoint1 1 0 [color=blue]
+start_hub: start 0 0 [max_drones=21 color=green]
+hub: waypoint1 1 0 [color=blue zone=blocked]
 hub: waypoint2 2 0 [color=blue]
-end_hub: goal 3 0 [color=red]
+end_hub: goal 3 0 [max_drones=21 color=red zone=normal]
 
-connection: start-waypoint1
-connection: waypoint1-waypoint2
+connection: start-waypoint1 
+connection: waypoint1-waypoint2 [max_link_capacity=2]
 connection: waypoint2-goal

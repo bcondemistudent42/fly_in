@@ -1,4 +1,8 @@
-import pygame
+
+import os
+os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
+
+import pygame  # noqa: E402
 
 
 class Displayer:
@@ -9,4 +13,4 @@ class Displayer:
         self.screen = pygame.display.set_mode((width, height))
         self.width = width
         self.height = height
-        pygame.display.set_caption("Fly-in Drone Simulation")
+        pygame.display.set_caption("Fly-in")

@@ -4,24 +4,6 @@ import re
 from enum import StrEnum
 
 
-class Colors(StrEnum):
-    RED = "red"
-    GREEN = "green"
-    BLUE = "blue"
-    YELLOW = "yellow"
-    ORANGE = "orange"
-    PURPLE = "purple"
-    PINK = "pink"
-    BROWN = "brown"
-    GREY = "grey"
-    BLACK = "black"
-    WHITE = "white"
-    CYAN = "cyan"
-    LIME = "lime"
-    MAGENTA = "magenta"
-    GOLD = "gold"
-
-
 class Utils(StrEnum):
     START_HUB = "start_hub"
     END_HUB = "end_hub"
@@ -53,26 +35,39 @@ def extract_color(my_string):
 
 
 def extract_max_drones(my_string):
-    pattern = r"max_drones=(\d+)"
+    pattern = r"max_drones=([^\]\s]+)"
     match = re.search(pattern, my_string)
-    try:
-        if match:
-            return int(match.group(1))
-    except ValueError:
-        print("Number of drone must be an INTEGER")
-        return -1
-    except Exception as e:
-        print(e)
-        return -1
-    return 1
-
-
-def extract_max_link_capacity(meta_string):
-    pattern = r"max_link_capacity=(\d+)"
-    match = re.search(pattern, meta_string)
+    rslt = 1
     if match:
-        return int(match.group(1))
-    return 1
+        try:
+            rslt = int(match.group(1))
+        except ValueError:
+            raise ValueError("Number of drone must be an INTEGER")
+        if rslt < 0:
+            raise ValueError("Number of drone must be positive")
+    return rslt
+
+
+def extract_max_link_capacity(my_string):
+    pattern = r"max_link_capacity=([^\]\s]+)"
+    match = re.search(pattern, my_string)
+    rslt = 1
+    if match:
+        try:
+            rslt = int(match.group(1))
+        except ValueError:
+            raise ValueError("Max link capacity must be an INTEGER")
+        if rslt < 0:
+            raise ValueError("Max link capacity must be positive")
+    return rslt
+
+
+def extract_metadata(my_string):
+    pattern = r"\[([^\]]+)\]"
+    match = re.search(pattern, my_string)
+    if match:
+        return match.group(1)
+    return None
 
 
 class Hubs:
@@ -90,16 +85,15 @@ class Hubs:
 
         self.x = int(x)
         self.y = int(y)
+
         self.links = {}
         self.links["max_links"] = 1
         self.links["links"] = []
 
         self.start, self.end = check
-        self.max_flow = int(max_capacity)
+        self.max_drone = int(max_capacity)
 
-        if color not in list(Colors):
-            raise ValueError(f"The color {color} is not managed")
-        self.color = color  # to see the securities
+        self.color = color
         if zone_type == ZoneType.NORMAL:
             self.cost = float(1)
         elif zone_type == ZoneType.BLOCKED:
@@ -133,6 +127,7 @@ def map_valid(my_map):
             format_err = "Format Error: Must respect pattern 'nb_drones: int'"
             i = 0
             for line in f:
+                print(extract_metadata(line))
                 if line.startswith("#") or len(line.strip()) == 0:
                     pass
                 elif ":" not in line:
@@ -184,6 +179,10 @@ def map_valid(my_map):
                                 extract_color(str(line))
                                                     )
                         elif key[0] == Utils.HUB:
+                            if my_hubs.get(data[0]) is not None:
+                                raise ValueError(
+                                    "Can't declare twice a Hub with same name"
+                                    )
                             my_hubs[data[0]] = Hubs(
                                 data[0],
                                 data[1],
@@ -221,7 +220,21 @@ def map_valid(my_map):
         raise ValueError(
                          "MISSING : links between hubs"
                          )
+    check_hubs(my_hubs)
+    if my_hubs["nb_drones"] < 0:
+        raise ValueError("You must have at least 0 drones")
     return my_hubs
+
+
+def check_hubs(my_map):
+    hubs = [x for x in my_map.values() if isinstance(x, Hubs)]
+
+    for i in range(len(hubs)):
+        for j in range(i + 1, len(hubs)):
+            hub_a = hubs[i]
+            hub_b = hubs[j]
+            if hub_a.x == hub_b.x and hub_a.y == hub_b.y:
+                raise ValueError("Two Hubs can't have the same position")
 
 
 def make_links(my_map):
@@ -244,7 +257,7 @@ def make_links(my_map):
     return my_map
 
 
-def make_displayable():
+def make_displayable(choosen_map: str):
     full_maps = {}
     try:
         maps = get_maps()
@@ -261,7 +274,7 @@ def make_displayable():
         except Exception as e:
             raise ValueError(f"Error in file {elt}: {e}")
 
-    choosen_map = "03_ultimate_challenge.txt"  #to define after full_maps created
+    # choosen_map = "03_ultimate_challenge.txt"  #to define after full_maps created
     if choosen_map not in valid_maps:
         raise ValueError("The choosen map is not valid")
     displayable_map = make_links(full_maps[choosen_map])
