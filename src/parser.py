@@ -18,57 +18,6 @@ class ZoneType(StrEnum):
     PRIORITY = "priority"
 
 
-def extract_zone(my_string):
-    pattern = r"zone=([^\]\s]+)"
-    match = re.search(pattern, my_string)
-    if match:
-        return match.group(1)
-    return str(ZoneType.NORMAL)
-
-
-def extract_color(my_string):
-    pattern = r"color=([^\]\s]+)"
-    match = re.search(pattern, my_string)
-    if match:
-        return match.group(1)
-    return "white"
-
-
-def extract_max_drones(my_string):
-    pattern = r"max_drones=([^\]\s]+)"
-    match = re.search(pattern, my_string)
-    rslt = 1
-    if match:
-        try:
-            rslt = int(match.group(1))
-        except ValueError:
-            raise ValueError("Number of drone must be an INTEGER")
-        if rslt < 0:
-            raise ValueError("Number of drone must be positive")
-    return rslt
-
-
-def extract_max_link_capacity(my_string):
-    pattern = r"max_link_capacity=([^\]\s]+)"
-    match = re.search(pattern, my_string)
-    rslt = 1
-    if match:
-        try:
-            rslt = int(match.group(1))
-        except ValueError:
-            raise ValueError("Max link capacity must be an INTEGER")
-        if rslt < 0:
-            raise ValueError("Max link capacity must be positive")
-    return rslt
-
-
-def extract_metadata(my_string):
-    pattern = r"\[([^\]]+)\]"
-    match = re.search(pattern, my_string)
-    if match:
-        return match.group(1)
-    return None
-
 
 class Hubs:
     def __init__(
@@ -77,9 +26,9 @@ class Hubs:
                  x: str,
                  y: str,
                  check: tuple,
-                 zone_type: str,
-                 max_capacity: int,
-                 color: str
+                 zone_type,
+                 max_capacity,
+                 color
                  ):
         self.name = name
 
@@ -91,10 +40,19 @@ class Hubs:
         self.links["links"] = []
 
         self.start, self.end = check
-        self.max_drone = int(max_capacity)
+        if max_capacity is None:
+            self.max_drone = 1
+        else:
+            self.max_drone = int(max_capacity)
 
-        self.color = color
-        if zone_type == ZoneType.NORMAL:
+        if color is None:
+            self.color = "white"
+        else:
+            self.color = color
+
+        if zone_type is None:
+            self.cost = float(1)
+        elif zone_type == ZoneType.NORMAL:
             self.cost = float(1)
         elif zone_type == ZoneType.BLOCKED:
             self.cost = float('inf')
@@ -127,7 +85,6 @@ def map_valid(my_map):
             format_err = "Format Error: Must respect pattern 'nb_drones: int'"
             i = 0
             for line in f:
-                print(extract_metadata(line))
                 if line.startswith("#") or len(line.strip()) == 0:
                     pass
                 elif ":" not in line:
@@ -148,9 +105,11 @@ def map_valid(my_map):
                         else:
                             my_hubs["nb_drones"] = int(temp[1])
                     else:
+                        metadata = extract_metadata(line)
                         key = line.split(":")
                         data = key[1].split()
                         if key[0] == Utils.START_HUB:
+                            check_metadata(metadata)
                             if start_name != "":
                                 raise ValueError("Can't init twice start,")
                             start_name = data[0]
@@ -159,11 +118,12 @@ def map_valid(my_map):
                                 data[1],
                                 data[2],
                                 (True, False),
-                                extract_zone(str(line)),
-                                extract_max_drones(str(line)),
-                                extract_color(str(line))
+                                extract_zone(str(metadata)),
+                                extract_max_drones(metadata),
+                                extract_color(str(metadata))
                                                     )
                         elif key[0] == Utils.END_HUB:
+                            check_metadata(metadata)
                             if end_name != "":
                                 raise ValueError(
                                       "Cannot init twice end_hub"
@@ -175,10 +135,11 @@ def map_valid(my_map):
                                 data[2],
                                 (False, True),
                                 extract_zone(str(line)),
-                                extract_max_drones(str(line)),
+                                extract_max_drones(line),
                                 extract_color(str(line))
                                                     )
                         elif key[0] == Utils.HUB:
+                            check_metadata(metadata)
                             if my_hubs.get(data[0]) is not None:
                                 raise ValueError(
                                     "Can't declare twice a Hub with same name"
@@ -189,16 +150,14 @@ def map_valid(my_map):
                                 data[2],
                                 (False, False),
                                 extract_zone(str(line)),
-                                extract_max_drones(str(line)),
+                                extract_max_drones(line),
                                 extract_color(str(line))
                                 )
                         elif key[0] == Utils.CONNECTION:
-                            check = int(extract_max_link_capacity(line))
-                            if check < 0:
-                                raise ValueError("Max connections must be > 0")
+                            value = check_metadata_connection(metadata)
                             my_hubs["hubs_links"].append(
                                 ((key[1].split()[0].strip(),
-                                  check))
+                                  value))
                                 )
                         else:
                             raise ValueError(
@@ -220,10 +179,100 @@ def map_valid(my_map):
         raise ValueError(
                          "MISSING : links between hubs"
                          )
-    check_hubs(my_hubs)
     if my_hubs["nb_drones"] < 0:
         raise ValueError("You must have at least 0 drones")
+    check_hubs(my_hubs)
     return my_hubs
+
+
+def check_metadata_connection(my_data: str):
+    if my_data is None:
+        return None
+    clean_data = my_data.split()
+
+    if len(clean_data) > 1:
+        raise ValueError("What are u trying to do", "Wrong Metadata format")
+    rslt = extract_max_link_capacity(clean_data[0])
+    if rslt is None:
+        raise ValueError("What are u trying to do", "Wrong Metadata format")
+    if int(rslt) < 0:
+        raise ValueError("Max connections must be > 0")
+    return rslt
+
+
+def check_metadata(my_data: str):
+    if my_data is None:
+        return None
+    clean_data = my_data.split()
+    if my_data.count("color=") > 1:
+        raise ValueError("CHOOSE ONE COLOR")
+    if my_data.count("zone=") > 1:
+        raise ValueError("CHOOSE ONE ZONE")
+    if my_data.count("max_drones=") > 1:
+        raise ValueError("CHOOSE ONE NUMBER")
+    if len(clean_data) > 3:
+        raise ValueError("Wrong Metadata format")
+    for elt in clean_data:
+        if (
+            extract_zone(elt) is None and
+                extract_color(elt) is None and
+                extract_max_drones(elt) is None):
+            raise ValueError(
+                    "What are u trying to do",
+                    "Wrong Metadata format"
+                    )
+
+
+def extract_zone(my_string):
+    pattern = r"zone=([^\]\s]+)"
+    match = re.search(pattern, my_string)
+    if match:
+        return match.group(1)
+    return None
+
+
+def extract_color(my_string):
+    pattern = r"color=([^\]\s]+)"
+    match = re.search(pattern, my_string)
+    if match:
+        return match.group(1)
+    return None
+
+
+def extract_max_drones(my_string):
+    pattern = r"max_drones=([^\]\s]+)"
+    match = re.search(pattern, my_string)
+    rslt = None
+    if match:
+        try:
+            rslt = int(match.group(1))
+        except ValueError:
+            raise ValueError("Number of drone must be an INTEGER")
+        if rslt < 0:
+            raise ValueError("Number of drone must be positive")
+    return rslt
+
+
+def extract_max_link_capacity(my_string):
+    pattern = r"max_link_capacity=([^\]\s]+)"
+    match = re.search(pattern, my_string)
+    rslt = None
+    if match:
+        try:
+            rslt = int(match.group(1))
+        except ValueError:
+            raise ValueError("Max link capacity must be an INTEGER")
+        if rslt < 0:
+            raise ValueError("Max link capacity must be positive")
+    return rslt
+
+
+def extract_metadata(my_string):
+    pattern = r"\[([^\]]+)\]"
+    match = re.search(pattern, my_string)
+    if match:
+        return match.group(1)
+    return None
 
 
 def check_hubs(my_map):
@@ -280,3 +329,7 @@ def make_displayable(choosen_map: str):
     displayable_map = make_links(full_maps[choosen_map])
 
     return displayable_map
+
+
+# to check metadata split the extract metadata then check max len < 3 then chexck every
+# element if not of 3 possible type raise error

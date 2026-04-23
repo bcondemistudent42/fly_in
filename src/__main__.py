@@ -50,16 +50,16 @@ def main():
 
     hubs = [x for x in map.values() if isinstance(x, Hubs)]
     for i in range(len(hubs)):
-        print(hubs[i].name)
-        print(hubs[i].max_drone)
         print()
+        print(hubs[i].name)
+        print(hubs[i].color)
 
 
 if __name__ == "__main__":
-    # try:
-    main()
-    # except BaseException as e:
-        # print(e)
+    try:
+        main()
+    except BaseException as e:
+        print(e)
 
 
 
@@ -77,3 +77,8 @@ if __name__ == "__main__":
 #negativ
 # The same connection must not appear more than once (e.g., a-b and b-a are con-
 # sidered duplicates)
+
+# check double connection 
+
+
+# bug in that case hub: waypoint1 1 0 [woffgqwfwcolor=blue]
