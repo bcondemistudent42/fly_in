@@ -59,10 +59,10 @@ def main():
 
 
 if __name__ == "__main__":
-    # try:
-    main()
-    # except BaseException as e:
-        # print(e)
+    try:
+        main()
+    except BaseException as e:
+        print(e)
 
 
 
@@ -80,4 +80,3 @@ if __name__ == "__main__":
 #negativ
 
 # bug in that case hub:
-# bug also with start_hub: start 0 0 color=green

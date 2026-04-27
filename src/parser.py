@@ -18,7 +18,6 @@ class ZoneType(StrEnum):
     PRIORITY = "priority"
 
 
-
 class Hubs:
     def __init__(
                  self,
@@ -77,6 +76,10 @@ def get_maps():
 def map_valid(my_map):
     j = 1
     connection_check = []
+    my_replace = {
+              ord("["): "", ord("]"): "",
+              ord(","): "", ord("'"): ""
+             }
     try:
         with open("maps/" + my_map) as f:
             my_hubs = {}
@@ -107,20 +110,20 @@ def map_valid(my_map):
                             my_hubs["nb_drones"] = int(temp[1])
                     else:
                         key = line.split(":")
-                        my_map = {
-                            ord("["): "", ord("]"): "",
-                            ord(","): "", ord("'"): ""}
                         if key[0] == Utils.START_HUB:
                             data = key[1].split()[0:3]
                             pre_metadata = key[1].split()[3::]
 
-                            print(key[1].split()[3::])
+                            if len(data) < 3 or len(key[1].split()) > 6:
+                                raise ValueError(
+                                    format_err
+                                    )
                             if len(pre_metadata) > 0:
                                 if (pre_metadata[0][0] != "["
                                         or pre_metadata[-1][-1] != "]"):
                                     raise ValueError("Wrong Metadata Format")
 
-                            metadata = str(pre_metadata).translate(my_map)
+                            metadata = str(pre_metadata).translate(my_replace)
                             check_metadata(metadata)
                             if start_name != "":
                                 raise ValueError("Can't init twice start,")
@@ -137,7 +140,12 @@ def map_valid(my_map):
                         elif key[0] == Utils.END_HUB:
                             data = key[1].split()[0:3]
                             pre_metadata = key[1].split()[3::]
-                            metadata = str(pre_metadata).translate(my_map)
+                            metadata = str(pre_metadata).translate(my_replace)
+
+                            if len(data) < 3 or len(key[1].split()) > 6:
+                                raise ValueError(
+                                    format_err
+                                    )
 
                             if len(pre_metadata) > 0:
                                 if (pre_metadata[0][0] != "["
@@ -163,12 +171,17 @@ def map_valid(my_map):
                             data = key[1].split()[0:3]
                             pre_metadata = key[1].split()[3::]
 
+                            if len(data) < 3 or len(key[1].split()) > 6:
+                                raise ValueError(
+                                    format_err
+                                    )
+
                             if len(pre_metadata) > 0:
                                 if (pre_metadata[0][0] != "["
                                         or pre_metadata[-1][-1] != "]"):
                                     raise ValueError("Wrong Metadata Format")
 
-                            metadata = str(pre_metadata).translate(my_map)
+                            metadata = str(pre_metadata).translate(my_replace)
                             check_metadata(metadata)
                             if my_hubs.get(data[0]) is not None:
                                 raise ValueError(
