@@ -106,10 +106,19 @@ def map_valid(my_map):
                         else:
                             my_hubs["nb_drones"] = int(temp[1])
                     else:
-                        metadata = extract_metadata(line)
                         key = line.split(":")
-                        data = key[1].split()
+                        my_map = {
+                            ord("["): "", ord("]"): "",
+                            ord(","): "", ord("'"): ""}
                         if key[0] == Utils.START_HUB:
+                            data = key[1].split()[0:3]
+                            pre_metadata = key[1].split()[3::]
+
+                            if (pre_metadata[0][0] != "["
+                                    or pre_metadata[0][-1] != "]"):
+                                raise ValueError("Wrong Metadata Format")
+
+                            metadata = str(pre_metadata).translate(my_map)
                             check_metadata(metadata)
                             if start_name != "":
                                 raise ValueError("Can't init twice start,")
@@ -124,6 +133,14 @@ def map_valid(my_map):
                                 extract_color(str(metadata))
                                                     )
                         elif key[0] == Utils.END_HUB:
+                            data = key[1].split()[0:3]
+                            pre_metadata = key[1].split()[3::]
+                            metadata = str(pre_metadata).translate(my_map)
+
+                            if (pre_metadata[0][0] != "["
+                                    or pre_metadata[-1][-1] != "]"):
+                                raise ValueError("Wrong Metadata Format")
+
                             check_metadata(metadata)
                             if end_name != "":
                                 raise ValueError(
@@ -140,6 +157,15 @@ def map_valid(my_map):
                                 extract_color(str(line))
                                                     )
                         elif key[0] == Utils.HUB:
+                            data = key[1].split()[0:3]
+                            pre_metadata = key[1].split()[3::]
+
+                            if (pre_metadata[0][0] != "["
+                                    or pre_metadata[-1][-1] != "]"):
+                                print(pre_metadata)
+                                raise ValueError("Wrong Metadata Format")
+
+                            metadata = str(pre_metadata).translate(my_map)
                             check_metadata(metadata)
                             if my_hubs.get(data[0]) is not None:
                                 raise ValueError(
@@ -155,7 +181,14 @@ def map_valid(my_map):
                                 extract_color(str(line))
                                 )
                         elif key[0] == Utils.CONNECTION:
-                            value = check_metadata_connection(metadata)
+                            data = key[1].split()[0:2]
+                            meta = key[1].split()[1::]
+                            if len(meta) == 0:
+                                value = 1
+                            else:
+                                if meta[0][0] != "[" or meta[-1][-1] != "]":
+                                    raise ValueError("Wrong Metadata Format")
+                                value = check_metadata_connection(str(meta))
                             my_hubs["hubs_links"].append(
                                 ((key[1].split()[0].strip(),
                                   value))

@@ -48,6 +48,9 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_q:
+                    running = False
 
     # hubs = [x for x in map.values() if isinstance(x, Hubs)]
     # for i in range(len(hubs)):
@@ -76,11 +79,6 @@ if __name__ == "__main__":
 # to handle if nbr drone bigger than the end max flow or start max flow
 
 #negativ
-# The same connection must not appear more than once (e.g., a-b and b-a are con-
-# sidered duplicates)
 
-# check double connection 
-
-
-# bug in that case hub: waypoint1 1 0 [woffgqwfwcolor=blue]
-# bug also with hub: waypoint1 1 0 hub: waypoint1 1 0 [woffgqwfwcolor=blue]
+# bug in that case hub:
+# bug also with start_hub: start 0 0 color=green
