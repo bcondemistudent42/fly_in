@@ -76,6 +76,7 @@ def get_maps():
 
 def map_valid(my_map):
     j = 1
+    connection_check = []
     try:
         with open("maps/" + my_map) as f:
             my_hubs = {}
@@ -159,11 +160,14 @@ def map_valid(my_map):
                                 ((key[1].split()[0].strip(),
                                   value))
                                 )
+                            connection_check.append(line.split()[1])
                         else:
                             raise ValueError(
                                   f"Unknown Type, {format_err}, "
                                   )
                     i = 1
+                    if len(connection_check) != len(set(connection_check)):
+                        raise ValueError("Can't declare twice same connection")
                 j += 1
     except Exception as e:
         raise Exception(f"{e} Line: {j}")
@@ -224,7 +228,7 @@ def check_metadata(my_data: str):
 
 
 def extract_zone(my_string):
-    pattern = r"zone=([^\]\s]+)"
+    pattern = r"(?:(?<=[\[\s])|^)zone=([^\]\s]+)"
     match = re.search(pattern, my_string)
     if match:
         return match.group(1)
@@ -232,15 +236,17 @@ def extract_zone(my_string):
 
 
 def extract_color(my_string):
-    pattern = r"color=([^\]\s]+)"
+    pattern = r"(?:(?<=[\[\s])|^)color=([^\]\s]+)"
     match = re.search(pattern, my_string)
     if match:
+        if (match.group(0).split("=")[0]).strip() != "color":
+            raise ValueError(f"This is not valid: {match.group(0)}")
         return match.group(1)
     return None
 
 
 def extract_max_drones(my_string):
-    pattern = r"max_drones=([^\]\s]+)"
+    pattern = r"(?:(?<=[\[\s])|^)max_drones=([^\]\s]+)"
     match = re.search(pattern, my_string)
     rslt = None
     if match:
@@ -254,7 +260,7 @@ def extract_max_drones(my_string):
 
 
 def extract_max_link_capacity(my_string):
-    pattern = r"max_link_capacity=([^\]\s]+)"
+    pattern = r"(?:(?<=[\[\s])|^)max_link_capacity=([^\]\s]+)"
     match = re.search(pattern, my_string)
     rslt = None
     if match:
@@ -325,7 +331,7 @@ def make_displayable(choosen_map: str):
 
     # choosen_map = "03_ultimate_challenge.txt"  #to define after full_maps created
     if choosen_map not in valid_maps:
-        raise ValueError("The choosen map is not valid")
+        raise ValueError(f"The choosen map is not valid : '{choosen_map}'")
     displayable_map = make_links(full_maps[choosen_map])
 
     return displayable_map

@@ -12,6 +12,7 @@ import pygame  # noqa: E402
 def main():
 
     choosen_map = "01_linear_path.txt"
+    # choosen_map = "01_maze_nightmare.txt"
     map = make_displayable(choosen_map)
     display = Displayer()
 
@@ -48,11 +49,11 @@ def main():
             if event.type == pygame.QUIT:
                 running = False
 
-    hubs = [x for x in map.values() if isinstance(x, Hubs)]
-    for i in range(len(hubs)):
-        print()
-        print(hubs[i].name)
-        print(hubs[i].color)
+    # hubs = [x for x in map.values() if isinstance(x, Hubs)]
+    # for i in range(len(hubs)):
+        # print()
+        # print(hubs[i].name)
+        # print(hubs[i].color)
 
 
 if __name__ == "__main__":
@@ -82,3 +83,4 @@ if __name__ == "__main__":
 
 
 # bug in that case hub: waypoint1 1 0 [woffgqwfwcolor=blue]
+# bug also with hub: waypoint1 1 0 hub: waypoint1 1 0 [woffgqwfwcolor=blue]
