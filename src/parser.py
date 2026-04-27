@@ -115,7 +115,7 @@ def map_valid(my_map):
                             pre_metadata = key[1].split()[3::]
 
                             if (pre_metadata[0][0] != "["
-                                    or pre_metadata[0][-1] != "]"):
+                                    or pre_metadata[-1][-1] != "]"):
                                 raise ValueError("Wrong Metadata Format")
 
                             metadata = str(pre_metadata).translate(my_map)
