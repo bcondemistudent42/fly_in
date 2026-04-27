@@ -11,7 +11,7 @@ import pygame  # noqa: E402
 
 def main():
 
-    choosen_map = "01_linear_path.txt"
+    choosen_map = "03_ultimate_challenge.txt"
     map = make_displayable(choosen_map)
     display = Displayer()
 
@@ -77,6 +77,7 @@ if __name__ == "__main__":
 
 # to handle if nbr drone bigger than the end max flow or start max flow
 
-#negativ
-
-# bug in that case hub:
+# to refacto with function likes: 
+# def manage_start_hub
+# def manage_end_hub
+# ect ...
