@@ -11,8 +11,7 @@ import pygame  # noqa: E402
 
 def main():
 
-    # choosen_map = "01_linear_path.txt"
-    choosen_map = "01_maze_nightmare.txt"
+    choosen_map = "01_linear_path.txt"
     map = make_displayable(choosen_map)
     display = Displayer()
 

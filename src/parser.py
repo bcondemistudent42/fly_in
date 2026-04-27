@@ -114,9 +114,11 @@ def map_valid(my_map):
                             data = key[1].split()[0:3]
                             pre_metadata = key[1].split()[3::]
 
-                            if (pre_metadata[0][0] != "["
-                                    or pre_metadata[-1][-1] != "]"):
-                                raise ValueError("Wrong Metadata Format")
+                            print(key[1].split()[3::])
+                            if len(pre_metadata) > 0:
+                                if (pre_metadata[0][0] != "["
+                                        or pre_metadata[-1][-1] != "]"):
+                                    raise ValueError("Wrong Metadata Format")
 
                             metadata = str(pre_metadata).translate(my_map)
                             check_metadata(metadata)
@@ -137,9 +139,10 @@ def map_valid(my_map):
                             pre_metadata = key[1].split()[3::]
                             metadata = str(pre_metadata).translate(my_map)
 
-                            if (pre_metadata[0][0] != "["
-                                    or pre_metadata[-1][-1] != "]"):
-                                raise ValueError("Wrong Metadata Format")
+                            if len(pre_metadata) > 0:
+                                if (pre_metadata[0][0] != "["
+                                        or pre_metadata[-1][-1] != "]"):
+                                    raise ValueError("Wrong Metadata Format")
 
                             check_metadata(metadata)
                             if end_name != "":
@@ -160,10 +163,10 @@ def map_valid(my_map):
                             data = key[1].split()[0:3]
                             pre_metadata = key[1].split()[3::]
 
-                            if (pre_metadata[0][0] != "["
-                                    or pre_metadata[-1][-1] != "]"):
-                                print(pre_metadata)
-                                raise ValueError("Wrong Metadata Format")
+                            if len(pre_metadata) > 0:
+                                if (pre_metadata[0][0] != "["
+                                        or pre_metadata[-1][-1] != "]"):
+                                    raise ValueError("Wrong Metadata Format")
 
                             metadata = str(pre_metadata).translate(my_map)
                             check_metadata(metadata)
