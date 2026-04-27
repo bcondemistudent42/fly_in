@@ -171,6 +171,13 @@ def map_valid(my_map):
                 j += 1
     except Exception as e:
         raise Exception(f"{e} Line: {j}")
+    for elt in connection_check:
+        for elt1 in connection_check:
+            left = elt1.split("-")[0]
+            right = elt1.split("-")[1]
+            total = f"{right}-{left}"
+            if total == elt:
+                raise ValueError("Can't declare twice same connection")
     if start_name == "":
         raise ValueError(
                          f"MISSING : {Utils.START_HUB}"
