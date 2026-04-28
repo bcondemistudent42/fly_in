@@ -8,7 +8,7 @@ from src.parsing.checks import (
     last_check,
     check_hubs,
     make_links,
-    check_simple_connection
+    check_simple_connection,
 )
 
 from src.parsing.regex_extract import (
@@ -41,7 +41,7 @@ class Hubs:
         check: tuple,
         zone_type,
         max_capacity,
-        color
+        color,
     ):
         if "-" in name:
             raise ValueError("Can't have a dash in name")
@@ -127,10 +127,17 @@ def map_valid(my_map):
                     else:
                         key = line.split(":")
                         if key[0] == Utils.START_HUB:
+                            if len(connection_check) != 0:
+                                j -= 1
+                                raise ValueError("Must init HUBS before links")
                             data = key[1].split()[0:3]
                             metadata = handle_start_hub(
                                 key, format_err, my_replace, start_name, data
                             )
+
+                            max_drones = extract_max_drones(metadata)
+                            if max_drones is None:
+                                max_drones = my_hubs["nb_drones"]
 
                             start_name = data[0]
                             my_hubs[data[0]] = Hubs(
@@ -139,28 +146,37 @@ def map_valid(my_map):
                                 data[2],
                                 (True, False),
                                 extract_zone(str(metadata)),
-                                extract_max_drones(metadata),
+                                max_drones,
                                 extract_color(str(metadata)),
                             )
 
                         elif key[0] == Utils.END_HUB:
+                            if len(connection_check) != 0:
+                                j -= 1
+                                raise ValueError("Must init HUBS before links")
                             data = key[1].split()[0:3]
                             metadata = handle_end_hub(
                                 key, format_err, my_replace, end_name, data
                             )
 
                             end_name = data[0]
+                            max_drones = extract_max_drones(metadata)
+                            if max_drones is None:
+                                max_drones = my_hubs["nb_drones"]
                             my_hubs[data[0]] = Hubs(
                                 data[0],
                                 data[1],
                                 data[2],
                                 (False, True),
-                                extract_zone(str(line)),
-                                extract_max_drones(line),
-                                extract_color(str(line)),
+                                extract_zone(str(metadata)),
+                                max_drones,
+                                extract_color(str(metadata)),
                             )
 
                         elif key[0] == Utils.HUB:
+                            if len(connection_check) != 0:
+                                j -= 1
+                                raise ValueError("Must init HUBS before links")
                             data = key[1].split()[0:3]
                             metadata = handle_hub(
                                 key, format_err, my_replace, my_hubs, data
@@ -171,9 +187,9 @@ def map_valid(my_map):
                                 data[1],
                                 data[2],
                                 (False, False),
-                                extract_zone(str(line)),
-                                extract_max_drones(line),
-                                extract_color(str(line)),
+                                extract_zone(str(metadata)),
+                                extract_max_drones(metadata),
+                                extract_color(str(metadata)),
                             )
 
                         elif key[0] == Utils.CONNECTION:
@@ -189,8 +205,10 @@ def map_valid(my_map):
                                 ((key[1].split()[0].strip(), value))
                             )
                             if len(line.split(":")) != 2:
-                                raise ValueError(f"Invalid line, {format_err}, ")
-                            connection_check.append(line.split(":")[1]) #check len
+                                raise ValueError(
+                                    f"Invalid line, {format_err}, "
+                                )
+                            connection_check.append(line.split(":")[1])
                         else:
                             raise ValueError(f"Invalid line, {format_err}, ")
                     if len(connection_check) != len(set(connection_check)):

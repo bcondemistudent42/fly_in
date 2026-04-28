@@ -66,11 +66,11 @@ def main():
                 if event.key == pygame.K_q:
                     running = False
 
-    # hubs = [x for x in map.values() if isinstance(x, Hubs)]
-    # for i in range(len(hubs)):
-    # print()
-    # print(hubs[i].name)
-    # print(hubs[i].color)
+    hubs = [x for x in map.values() if isinstance(x, Hubs)]
+    for i in range(len(hubs)):
+        print()
+        print(hubs[i].name)
+        print(hubs[i].max_drone)
 
 
 if __name__ == "__main__":
