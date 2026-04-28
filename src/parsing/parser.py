@@ -1,16 +1,14 @@
 import os
-
 from enum import StrEnum
 
 from src.parsing.checks import (
+    check_hubs,
     check_metadata,
     check_metadata_connection,
-    last_check,
-    check_hubs,
-    make_links,
     check_simple_connection,
+    last_check,
+    make_links,
 )
-
 from src.parsing.regex_extract import (
     extract_color,
     extract_max_drones,
@@ -62,7 +60,7 @@ class Hubs:
         else:
             self.max_drone = int(max_capacity)
 
-        if color is None:
+        if color is None or color == "rainbow":
             self.color = "white"
         else:
             self.color = color

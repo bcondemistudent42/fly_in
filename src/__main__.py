@@ -16,6 +16,25 @@ def find_start_end(map):
                    and x.end is True])
     return (start, end)
 
+# def get_maps():
+    # output = []
+    # for x in os.listdir("maps"):
+        # if x.endswith(".txt"):
+            # output.append(x)
+        # else:
+            # raise ValueError("Map must be a .txt")
+    # return output
+# 
+# def test_maps():
+        # for choosen_map in get_maps():
+        # map = make_displayable(choosen_map)
+        # print(choosen_map)
+        # start, end = find_start_end(map)
+        # if (map[start].max_drone < map["nb_drones"] or
+                # map[end].max_drone < map["nb_drones"]):
+            # raise ValueError(
+                # f"START and END must have at least {map['nb_drones']} max drones")
+
 
 def main():
 
@@ -66,11 +85,11 @@ def main():
                 if event.key == pygame.K_q:
                     running = False
 
-    hubs = [x for x in map.values() if isinstance(x, Hubs)]
-    for i in range(len(hubs)):
-        print()
-        print(hubs[i].name)
-        print(hubs[i].max_drone)
+    # hubs = [x for x in map.values() if isinstance(x, Hubs)]
+    # for i in range(len(hubs)):
+    #     print()
+    #     print(hubs[i].name)
+    #     print(hubs[i].max_drone)
 
 
 if __name__ == "__main__":
