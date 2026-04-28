@@ -27,16 +27,21 @@ def make_links(my_map):
     return my_map
 
 
-def last_check(connection_check, start_name, end_name, my_hubs):
-    from src.parsing.parser import Utils
-
+def check_simple_connection(connection_check):
     for elt in connection_check:
         for elt1 in connection_check:
+            if len(elt1.split("-")) != 2:
+                raise ValueError("Invalid Connection")
             left = elt1.split("-")[0]
             right = elt1.split("-")[1]
             total = f"{right}-{left}"
             if total == elt:
                 raise ValueError("Can't declare twice same connection")
+
+
+def last_check(start_name, end_name, my_hubs):
+    from src.parsing.parser import Utils
+
     if start_name == "":
         raise ValueError(f"MISSING : {Utils.START_HUB}")
     if end_name == "":

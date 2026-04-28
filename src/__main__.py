@@ -1,18 +1,31 @@
-import os
 import math
+import os
 
 from src.display import Displayer
-from src.parsing.parser import make_displayable, Hubs
+from src.parsing.parser import Hubs, make_displayable
 
-os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
+os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
 
 import pygame  # noqa: E402
+
+
+def find_start_end(map):
+    start = "".join([x.name for x in map.values() if isinstance(x, Hubs)
+                    and x.start is True])
+    end = "".join([x.name for x in map.values() if isinstance(x, Hubs)
+                   and x.end is True])
+    return (start, end)
 
 
 def main():
 
     choosen_map = "01_linear_path.txt"
     map = make_displayable(choosen_map)
+    start, end = find_start_end(map)
+    if (map[start].max_drone < map["nb_drones"] or
+            map[end].max_drone < map["nb_drones"]):
+        raise ValueError(
+            f"START and END must have at least {map['nb_drones']} max drones")
     display = Displayer()
 
     nbr_hubs = sum([1 for x in map.values() if isinstance(x, Hubs)])
@@ -26,16 +39,18 @@ def main():
         size = 40
 
     padding = size // 4
-    for elt in map.values():  #to do securty later if not map
+    for elt in map.values():  # to do securty later if not map
         try:
             if isinstance(elt, Hubs):
                 pygame.draw.rect(
                     display.screen,
                     elt.color,
-                    ((elt.x * ((size * 2)) + padding),
-                     (elt.y * ((size * 2))) + (display.height // 2) - size,
-                     size,
-                     size)
+                    (
+                        (elt.x * (size * 2) + padding),
+                        (elt.y * (size * 2)) + (display.height // 2) - size,
+                        size,
+                        size,
+                    ),
                 )
         except ValueError:
             running = False
@@ -53,9 +68,9 @@ def main():
 
     # hubs = [x for x in map.values() if isinstance(x, Hubs)]
     # for i in range(len(hubs)):
-        # print()
-        # print(hubs[i].name)
-        # print(hubs[i].color)
+    # print()
+    # print(hubs[i].name)
+    # print(hubs[i].color)
 
 
 if __name__ == "__main__":
@@ -65,12 +80,9 @@ if __name__ == "__main__":
         print(e)
 
 
-
 # to see how to choose the map, with or without display
 # within display maybe choose all available maps
 
 # to make parsing tested by mbichet
 
 # to handle correctly when hubs are outside the zone
-
-# to handle if nbr drone bigger than the end max flow or start max flow

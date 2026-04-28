@@ -8,6 +8,7 @@ from src.parsing.checks import (
     last_check,
     check_hubs,
     make_links,
+    check_simple_connection
 )
 
 from src.parsing.regex_extract import (
@@ -187,18 +188,21 @@ def map_valid(my_map):
                             my_hubs["hubs_links"].append(
                                 ((key[1].split()[0].strip(), value))
                             )
-                            connection_check.append(line.split()[1])
+                            if len(line.split(":")) != 2:
+                                raise ValueError(f"Invalid line, {format_err}, ")
+                            connection_check.append(line.split(":")[1]) #check len
                         else:
                             raise ValueError(f"Invalid line, {format_err}, ")
                     if len(connection_check) != len(set(connection_check)):
                         raise ValueError("Can't declare twice same connection")
+                    check_simple_connection(connection_check)
                     i = 1
                 j += 1
 
     except Exception as e:
         raise Exception(f"{e} Line: {j}")
     check_hubs(my_hubs)
-    last_check(connection_check, start_name, end_name, my_hubs)
+    last_check(start_name, end_name, my_hubs)
     return my_hubs
 
 
@@ -261,8 +265,7 @@ def make_displayable(choosen_map: str):
         if len(maps) == 0 or not maps:
             raise ValueError("At least one map must be available")
     except Exception as e:
-        print(f"File error: {e}")
-        return
+        raise ValueError(f"File error: {e}")
     valid_maps = []
     for elt in maps:
         try:
