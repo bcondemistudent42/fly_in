@@ -11,7 +11,7 @@ import pygame  # noqa: E402
 
 def main():
 
-    choosen_map = "03_ultimate_challenge.txt"
+    choosen_map = "01_linear_path.txt"
     map = make_displayable(choosen_map)
     display = Displayer()
 
@@ -59,10 +59,10 @@ def main():
 
 
 if __name__ == "__main__":
-    try:
-        main()
-    except BaseException as e:
-        print(e)
+    # try:
+    main()
+    # except BaseException as e:
+        # print(e)
 
 
 

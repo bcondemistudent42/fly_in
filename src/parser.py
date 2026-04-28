@@ -74,20 +74,21 @@ def get_maps():
 
 
 def map_valid(my_map):
+    i = 0
     j = 1
     connection_check = []
     my_replace = {
               ord("["): "", ord("]"): "",
               ord(","): "", ord("'"): ""
              }
+    my_hubs = {}
+    start_name = ""
+    end_name = ""
+    my_hubs["hubs_links"] = []
+    format_err = "Format Error: Must respect pattern 'nb_drones: int'"
+
     try:
         with open("maps/" + my_map) as f:
-            my_hubs = {}
-            start_name = ""
-            end_name = ""
-            my_hubs["hubs_links"] = []
-            format_err = "Format Error: Must respect pattern 'nb_drones: int'"
-            i = 0
             for line in f:
                 if line.startswith("#") or len(line.strip()) == 0:
                     pass
@@ -112,51 +113,30 @@ def map_valid(my_map):
                         key = line.split(":")
                         if key[0] == Utils.START_HUB:
                             data = key[1].split()[0:3]
-                            pre_metadata = key[1].split()[3::]
+                            metadata = handle_start_hub(
+                                       key,
+                                       format_err,
+                                       my_replace,
+                                       start_name,
+                                       data)
 
-                            if len(data) < 3 or len(key[1].split()) > 6:
-                                raise ValueError(
-                                    format_err
-                                    )
-                            if len(pre_metadata) > 0:
-                                if (pre_metadata[0][0] != "["
-                                        or pre_metadata[-1][-1] != "]"):
-                                    raise ValueError("Wrong Metadata Format")
-
-                            metadata = str(pre_metadata).translate(my_replace)
-                            check_metadata(metadata)
-                            if start_name != "":
-                                raise ValueError("Can't init twice start,")
                             start_name = data[0]
                             my_hubs[data[0]] = Hubs(
-                                data[0],
-                                data[1],
-                                data[2],
+                                data[0], data[1], data[2],
                                 (True, False),
                                 extract_zone(str(metadata)),
                                 extract_max_drones(metadata),
-                                extract_color(str(metadata))
-                                                    )
+                                extract_color(str(metadata)))
+
                         elif key[0] == Utils.END_HUB:
                             data = key[1].split()[0:3]
-                            pre_metadata = key[1].split()[3::]
-                            metadata = str(pre_metadata).translate(my_replace)
+                            metadata = handle_end_hub(
+                                       key,
+                                       format_err,
+                                       my_replace,
+                                       end_name,
+                                       data)
 
-                            if len(data) < 3 or len(key[1].split()) > 6:
-                                raise ValueError(
-                                    format_err
-                                    )
-
-                            if len(pre_metadata) > 0:
-                                if (pre_metadata[0][0] != "["
-                                        or pre_metadata[-1][-1] != "]"):
-                                    raise ValueError("Wrong Metadata Format")
-
-                            check_metadata(metadata)
-                            if end_name != "":
-                                raise ValueError(
-                                      "Cannot init twice end_hub"
-                                      )
                             end_name = data[0]
                             my_hubs[data[0]] = Hubs(
                                 data[0],
@@ -165,28 +145,17 @@ def map_valid(my_map):
                                 (False, True),
                                 extract_zone(str(line)),
                                 extract_max_drones(line),
-                                extract_color(str(line))
-                                                    )
+                                extract_color(str(line)))
+
                         elif key[0] == Utils.HUB:
                             data = key[1].split()[0:3]
-                            pre_metadata = key[1].split()[3::]
+                            metadata = handle_hub(
+                                       key,
+                                       format_err,
+                                       my_replace,
+                                       my_hubs,
+                                       data)
 
-                            if len(data) < 3 or len(key[1].split()) > 6:
-                                raise ValueError(
-                                    format_err
-                                    )
-
-                            if len(pre_metadata) > 0:
-                                if (pre_metadata[0][0] != "["
-                                        or pre_metadata[-1][-1] != "]"):
-                                    raise ValueError("Wrong Metadata Format")
-
-                            metadata = str(pre_metadata).translate(my_replace)
-                            check_metadata(metadata)
-                            if my_hubs.get(data[0]) is not None:
-                                raise ValueError(
-                                    "Can't declare twice a Hub with same name"
-                                    )
                             my_hubs[data[0]] = Hubs(
                                 data[0],
                                 data[1],
@@ -196,6 +165,7 @@ def map_valid(my_map):
                                 extract_max_drones(line),
                                 extract_color(str(line))
                                 )
+
                         elif key[0] == Utils.CONNECTION:
                             data = key[1].split()[0:2]
                             meta = key[1].split()[1::]
@@ -214,9 +184,9 @@ def map_valid(my_map):
                             raise ValueError(
                                   f"Unknown Type, {format_err}, "
                                   )
-                    i = 1
                     if len(connection_check) != len(set(connection_check)):
                         raise ValueError("Can't declare twice same connection")
+                    i = 1
                 j += 1
     except Exception as e:
         raise Exception(f"{e} Line: {j}")
@@ -243,6 +213,62 @@ def map_valid(my_map):
         raise ValueError("You must have at least 0 drones")
     check_hubs(my_hubs)
     return my_hubs
+
+
+
+def handle_hub(key, format_err, my_replace, my_hubs, data):
+    pre_metadata = key[1].split()[3::]
+
+    if len(data) < 3 or len(key[1].split()) > 6:
+        raise ValueError(format_err)
+    if len(pre_metadata) > 0:
+        if (pre_metadata[0][0] != "["
+                or pre_metadata[-1][-1] != "]"):
+            raise ValueError("Wrong Metadata Format")   
+
+    metadata = str(pre_metadata).translate(my_replace)
+    check_metadata(metadata)
+
+    if my_hubs.get(data[0]) is not None:
+        raise ValueError("Can't declare twice a Hub with same name")
+
+    return metadata
+
+
+def handle_start_hub(key, format_err, my_replace, start_name, data):
+    pre_metadata = key[1].split()[3::]
+
+    if len(data) < 3 or len(key[1].split()) > 6:
+        raise ValueError(format_err)
+    if len(pre_metadata) > 0:
+        if (pre_metadata[0][0] != "["
+                or pre_metadata[-1][-1] != "]"):
+            raise ValueError("Wrong Format")
+
+    metadata = str(pre_metadata).translate(my_replace)
+    check_metadata(metadata)
+
+    if start_name != "":
+        raise ValueError("Can't init twice start,")
+    return metadata
+
+
+def handle_end_hub(key, format_err, my_replace, end_name, data):
+    pre_metadata = key[1].split()[3::]
+
+    if len(data) < 3 or len(key[1].split()) > 6:
+        raise ValueError(format_err)
+    if len(pre_metadata) > 0:
+        if (pre_metadata[0][0] != "["
+                or pre_metadata[-1][-1] != "]"):
+            raise ValueError("Wrong Format")
+
+    metadata = str(pre_metadata).translate(my_replace)
+    check_metadata(metadata)
+
+    if end_name != "":
+        raise ValueError("Cannot init twice end_hub")
+    return metadata
 
 
 def check_metadata_connection(my_data: str):
@@ -385,13 +411,8 @@ def make_displayable(choosen_map: str):
         except Exception as e:
             raise ValueError(f"Error in file {elt}: {e}")
 
-    # choosen_map = "03_ultimate_challenge.txt"  #to define after full_maps created
     if choosen_map not in valid_maps:
         raise ValueError(f"The choosen map is not valid : '{choosen_map}'")
     displayable_map = make_links(full_maps[choosen_map])
 
     return displayable_map
-
-
-# to check metadata split the extract metadata then check max len < 3 then chexck every
-# element if not of 3 possible type raise error
