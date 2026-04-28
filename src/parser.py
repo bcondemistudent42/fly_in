@@ -31,8 +31,11 @@ class Hubs:
                  ):
         self.name = name
 
-        self.x = int(x)
-        self.y = int(y)
+        try:
+            self.x = int(x)
+            self.y = int(y)
+        except ValueError:
+            raise ValueError("Coordinates must be INT")
 
         self.links = {}
         self.links["max_links"] = 1
@@ -182,14 +185,19 @@ def map_valid(my_map):
                             connection_check.append(line.split()[1])
                         else:
                             raise ValueError(
-                                  f"Unknown Type, {format_err}, "
-                                  )
+                                  f"Invalid line, {format_err}, ")
                     if len(connection_check) != len(set(connection_check)):
                         raise ValueError("Can't declare twice same connection")
                     i = 1
                 j += 1
     except Exception as e:
         raise Exception(f"{e} Line: {j}")
+    check_hubs(my_hubs)
+    last_check(connection_check, start_name, end_name, my_hubs)
+    return my_hubs
+
+
+def last_check(connection_check, start_name, end_name, my_hubs):
     for elt in connection_check:
         for elt1 in connection_check:
             left = elt1.split("-")[0]
@@ -211,9 +219,6 @@ def map_valid(my_map):
                          )
     if my_hubs["nb_drones"] < 0:
         raise ValueError("You must have at least 0 drones")
-    check_hubs(my_hubs)
-    return my_hubs
-
 
 
 def handle_hub(key, format_err, my_replace, my_hubs, data):
