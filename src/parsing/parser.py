@@ -1,7 +1,18 @@
 import os
-import re
 
 from enum import StrEnum
+
+from src.parsing.checks import (
+    check_metadata,
+    check_metadata_connection,
+    last_check,
+    check_hubs,
+    make_links)
+
+from src.parsing.regex_extract import (
+    extract_color,
+    extract_max_drones,
+    extract_zone)
 
 
 class Utils(StrEnum):
@@ -180,8 +191,7 @@ def map_valid(my_map):
                                 value = check_metadata_connection(str(meta))
                             my_hubs["hubs_links"].append(
                                 ((key[1].split()[0].strip(),
-                                  value))
-                                )
+                                  value)))
                             connection_check.append(line.split()[1])
                         else:
                             raise ValueError(
@@ -190,35 +200,12 @@ def map_valid(my_map):
                         raise ValueError("Can't declare twice same connection")
                     i = 1
                 j += 1
+
     except Exception as e:
         raise Exception(f"{e} Line: {j}")
     check_hubs(my_hubs)
     last_check(connection_check, start_name, end_name, my_hubs)
     return my_hubs
-
-
-def last_check(connection_check, start_name, end_name, my_hubs):
-    for elt in connection_check:
-        for elt1 in connection_check:
-            left = elt1.split("-")[0]
-            right = elt1.split("-")[1]
-            total = f"{right}-{left}"
-            if total == elt:
-                raise ValueError("Can't declare twice same connection")
-    if start_name == "":
-        raise ValueError(
-                         f"MISSING : {Utils.START_HUB}"
-                         )
-    if end_name == "":
-        raise ValueError(
-                         f"MISSING : {Utils.END_HUB}"
-                         )
-    if len(my_hubs["hubs_links"]) == 0:
-        raise ValueError(
-                         "MISSING : links between hubs"
-                         )
-    if my_hubs["nb_drones"] < 0:
-        raise ValueError("You must have at least 0 drones")
 
 
 def handle_hub(key, format_err, my_replace, my_hubs, data):
@@ -274,129 +261,6 @@ def handle_end_hub(key, format_err, my_replace, end_name, data):
     if end_name != "":
         raise ValueError("Cannot init twice end_hub")
     return metadata
-
-
-def check_metadata_connection(my_data: str):
-    if my_data is None:
-        return None
-    clean_data = my_data.split()
-
-    if len(clean_data) > 1:
-        raise ValueError("What are u trying to do", "Wrong Metadata format")
-    rslt = extract_max_link_capacity(clean_data[0])
-    if rslt is None:
-        raise ValueError("What are u trying to do", "Wrong Metadata format")
-    if int(rslt) < 0:
-        raise ValueError("Max connections must be > 0")
-    return rslt
-
-
-def check_metadata(my_data: str):
-    if my_data is None:
-        return None
-    clean_data = my_data.split()
-    if my_data.count("color=") > 1:
-        raise ValueError("CHOOSE ONE COLOR")
-    if my_data.count("zone=") > 1:
-        raise ValueError("CHOOSE ONE ZONE")
-    if my_data.count("max_drones=") > 1:
-        raise ValueError("CHOOSE ONE NUMBER")
-    if len(clean_data) > 3:
-        raise ValueError("Wrong Metadata format")
-    for elt in clean_data:
-        if (
-            extract_zone(elt) is None and
-                extract_color(elt) is None and
-                extract_max_drones(elt) is None):
-            raise ValueError(
-                    "What are u trying to do",
-                    "Wrong Metadata format"
-                    )
-
-
-def extract_zone(my_string):
-    pattern = r"(?:(?<=[\[\s])|^)zone=([^\]\s]+)"
-    match = re.search(pattern, my_string)
-    if match:
-        return match.group(1)
-    return None
-
-
-def extract_color(my_string):
-    pattern = r"(?:(?<=[\[\s])|^)color=([^\]\s]+)"
-    match = re.search(pattern, my_string)
-    if match:
-        if (match.group(0).split("=")[0]).strip() != "color":
-            raise ValueError(f"This is not valid: {match.group(0)}")
-        return match.group(1)
-    return None
-
-
-def extract_max_drones(my_string):
-    pattern = r"(?:(?<=[\[\s])|^)max_drones=([^\]\s]+)"
-    match = re.search(pattern, my_string)
-    rslt = None
-    if match:
-        try:
-            rslt = int(match.group(1))
-        except ValueError:
-            raise ValueError("Number of drone must be an INTEGER")
-        if rslt < 0:
-            raise ValueError("Number of drone must be positive")
-    return rslt
-
-
-def extract_max_link_capacity(my_string):
-    pattern = r"(?:(?<=[\[\s])|^)max_link_capacity=([^\]\s]+)"
-    match = re.search(pattern, my_string)
-    rslt = None
-    if match:
-        try:
-            rslt = int(match.group(1))
-        except ValueError:
-            raise ValueError("Max link capacity must be an INTEGER")
-        if rslt < 0:
-            raise ValueError("Max link capacity must be positive")
-    return rslt
-
-
-def extract_metadata(my_string):
-    pattern = r"\[([^\]]+)\]"
-    match = re.search(pattern, my_string)
-    if match:
-        return match.group(1)
-    return None
-
-
-def check_hubs(my_map):
-    hubs = [x for x in my_map.values() if isinstance(x, Hubs)]
-
-    for i in range(len(hubs)):
-        for j in range(i + 1, len(hubs)):
-            hub_a = hubs[i]
-            hub_b = hubs[j]
-            if hub_a.x == hub_b.x and hub_a.y == hub_b.y:
-                raise ValueError("Two Hubs can't have the same position")
-
-
-def make_links(my_map):
-    key_names = [x.name for x in my_map.values() if isinstance(x, Hubs)]
-    for elt in my_map["hubs_links"]:
-        temp = elt[0].split("-")
-        if len(temp) != 2:
-            raise ValueError(
-                             "Links must respect format :'"
-                             "connection: start-waypoint1'"
-                             )
-        if temp[0] not in key_names:
-            raise ValueError(f"Links does not exists : {temp[0]}")
-        if temp[1] not in key_names:
-            raise ValueError(f"Links does not exists : {temp[1]}")
-        my_map[temp[0]].links["links"].append(temp[1])
-        my_map[temp[1]].links["links"].append(temp[0])
-
-        my_map[temp[0]].links["max_links"] = elt[1]
-    return my_map
 
 
 def make_displayable(choosen_map: str):

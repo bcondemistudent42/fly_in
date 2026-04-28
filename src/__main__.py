@@ -2,7 +2,7 @@ import os
 import math
 
 from src.display import Displayer
-from src.parser import make_displayable, Hubs
+from src.parsing.parser import make_displayable, Hubs
 
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 
@@ -59,10 +59,10 @@ def main():
 
 
 if __name__ == "__main__":
-    # try:
-    main()
-    # except BaseException as e:
-        # print(e)
+    try:
+        main()
+    except BaseException as e:
+        print(e)
 
 
 
@@ -71,13 +71,6 @@ if __name__ == "__main__":
 
 # to make parsing tested by mbichet
 
-# to handle if there is more than two connections
-
 # to handle correctly when hubs are outside the zone
 
 # to handle if nbr drone bigger than the end max flow or start max flow
-
-# to refacto with function likes: 
-# def manage_start_hub
-# def manage_end_hub
-# ect ...
