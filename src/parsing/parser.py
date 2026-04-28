@@ -7,12 +7,14 @@ from src.parsing.checks import (
     check_metadata_connection,
     last_check,
     check_hubs,
-    make_links)
+    make_links,
+)
 
 from src.parsing.regex_extract import (
     extract_color,
     extract_max_drones,
-    extract_zone)
+    extract_zone,
+)
 
 
 class Utils(StrEnum):
@@ -31,17 +33,18 @@ class ZoneType(StrEnum):
 
 class Hubs:
     def __init__(
-                 self,
-                 name: str,
-                 x: str,
-                 y: str,
-                 check: tuple,
-                 zone_type,
-                 max_capacity,
-                 color
-                 ):
+        self,
+        name: str,
+        x: str,
+        y: str,
+        check: tuple,
+        zone_type,
+        max_capacity,
+        color
+    ):
+        if "-" in name:
+            raise ValueError("Can't have a dash in name")
         self.name = name
-
         try:
             self.x = int(x)
             self.y = int(y)
@@ -68,7 +71,7 @@ class Hubs:
         elif zone_type == ZoneType.NORMAL:
             self.cost = float(1)
         elif zone_type == ZoneType.BLOCKED:
-            self.cost = float('inf')
+            self.cost = float("inf")
         elif zone_type == ZoneType.RESTRICTED:
             self.cost = 2
         elif zone_type == ZoneType.PRIORITY:
@@ -91,10 +94,7 @@ def map_valid(my_map):
     i = 0
     j = 1
     connection_check = []
-    my_replace = {
-              ord("["): "", ord("]"): "",
-              ord(","): "", ord("'"): ""
-             }
+    my_replace = {ord("["): "", ord("]"): "", ord(","): "", ord("'"): ""}
     my_hubs = {}
     start_name = ""
     end_name = ""
@@ -128,28 +128,25 @@ def map_valid(my_map):
                         if key[0] == Utils.START_HUB:
                             data = key[1].split()[0:3]
                             metadata = handle_start_hub(
-                                       key,
-                                       format_err,
-                                       my_replace,
-                                       start_name,
-                                       data)
+                                key, format_err, my_replace, start_name, data
+                            )
 
                             start_name = data[0]
                             my_hubs[data[0]] = Hubs(
-                                data[0], data[1], data[2],
+                                data[0],
+                                data[1],
+                                data[2],
                                 (True, False),
                                 extract_zone(str(metadata)),
                                 extract_max_drones(metadata),
-                                extract_color(str(metadata)))
+                                extract_color(str(metadata)),
+                            )
 
                         elif key[0] == Utils.END_HUB:
                             data = key[1].split()[0:3]
                             metadata = handle_end_hub(
-                                       key,
-                                       format_err,
-                                       my_replace,
-                                       end_name,
-                                       data)
+                                key, format_err, my_replace, end_name, data
+                            )
 
                             end_name = data[0]
                             my_hubs[data[0]] = Hubs(
@@ -159,16 +156,14 @@ def map_valid(my_map):
                                 (False, True),
                                 extract_zone(str(line)),
                                 extract_max_drones(line),
-                                extract_color(str(line)))
+                                extract_color(str(line)),
+                            )
 
                         elif key[0] == Utils.HUB:
                             data = key[1].split()[0:3]
                             metadata = handle_hub(
-                                       key,
-                                       format_err,
-                                       my_replace,
-                                       my_hubs,
-                                       data)
+                                key, format_err, my_replace, my_hubs, data
+                            )
 
                             my_hubs[data[0]] = Hubs(
                                 data[0],
@@ -177,8 +172,8 @@ def map_valid(my_map):
                                 (False, False),
                                 extract_zone(str(line)),
                                 extract_max_drones(line),
-                                extract_color(str(line))
-                                )
+                                extract_color(str(line)),
+                            )
 
                         elif key[0] == Utils.CONNECTION:
                             data = key[1].split()[0:2]
@@ -190,12 +185,11 @@ def map_valid(my_map):
                                     raise ValueError("Wrong Metadata Format")
                                 value = check_metadata_connection(str(meta))
                             my_hubs["hubs_links"].append(
-                                ((key[1].split()[0].strip(),
-                                  value)))
+                                ((key[1].split()[0].strip(), value))
+                            )
                             connection_check.append(line.split()[1])
                         else:
-                            raise ValueError(
-                                  f"Invalid line, {format_err}, ")
+                            raise ValueError(f"Invalid line, {format_err}, ")
                     if len(connection_check) != len(set(connection_check)):
                         raise ValueError("Can't declare twice same connection")
                     i = 1
@@ -214,9 +208,8 @@ def handle_hub(key, format_err, my_replace, my_hubs, data):
     if len(data) < 3 or len(key[1].split()) > 6:
         raise ValueError(format_err)
     if len(pre_metadata) > 0:
-        if (pre_metadata[0][0] != "["
-                or pre_metadata[-1][-1] != "]"):
-            raise ValueError("Wrong Metadata Format")   
+        if pre_metadata[0][0] != "[" or pre_metadata[-1][-1] != "]":
+            raise ValueError("Wrong Metadata Format")
 
     metadata = str(pre_metadata).translate(my_replace)
     check_metadata(metadata)
@@ -233,8 +226,7 @@ def handle_start_hub(key, format_err, my_replace, start_name, data):
     if len(data) < 3 or len(key[1].split()) > 6:
         raise ValueError(format_err)
     if len(pre_metadata) > 0:
-        if (pre_metadata[0][0] != "["
-                or pre_metadata[-1][-1] != "]"):
+        if pre_metadata[0][0] != "[" or pre_metadata[-1][-1] != "]":
             raise ValueError("Wrong Format")
 
     metadata = str(pre_metadata).translate(my_replace)
@@ -251,8 +243,7 @@ def handle_end_hub(key, format_err, my_replace, end_name, data):
     if len(data) < 3 or len(key[1].split()) > 6:
         raise ValueError(format_err)
     if len(pre_metadata) > 0:
-        if (pre_metadata[0][0] != "["
-                or pre_metadata[-1][-1] != "]"):
+        if pre_metadata[0][0] != "[" or pre_metadata[-1][-1] != "]":
             raise ValueError("Wrong Format")
 
     metadata = str(pre_metadata).translate(my_replace)
