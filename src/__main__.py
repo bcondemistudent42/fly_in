@@ -1,4 +1,3 @@
-import math
 import os
 
 from .display import Displayer
@@ -45,7 +44,7 @@ def find_start_end(map):
 
 def main():
 
-    choosen_map = "01_linear_path.txt"
+    choosen_map = "01_the_impossible_dream.txt"
     map = make_displayable(choosen_map)
     start, end = find_start_end(map)
     if (
@@ -57,39 +56,39 @@ def main():
         )
     display = Displayer()
 
-    size = 1
-    nbr_hubs = sum([1 for x in map.values() if isinstance(x, Hubs)])
-    nb_columns = int(math.sqrt(nbr_hubs))
-    nb_lines = nbr_hubs // nb_columns
-    size = min(display.width // nb_columns, display.height // nb_lines)
-    x_min = min([x.x for x in map.values() if isinstance(x, Hubs)])
     x_max = max([x.x for x in map.values() if isinstance(x, Hubs)])
-
+    x_min = min([x.x for x in map.values() if isinstance(x, Hubs)])
     y_min = min([x.y for x in map.values() if isinstance(x, Hubs)])
-    y_max = max([x.y for x in map.values() if isinstance(x, Hubs)])
 
-    print(x_min, x_max)
-    print(y_min, y_max)
+    size = 75
+    padding = size / 2
 
-    # if size > 120:
-    #     size = 120
-    # if size < 40:
-    size = 40
+    for elt in map.values():
+        if isinstance(elt, Hubs):
+            elt.x = elt.x - x_min
+            elt.y = elt.y - y_min
 
-    padding = size
-    for elt in map.values():  # to do securty later if not map
+    temp_x = max(1, x_max - x_min)
+    scale = (display.width - (padding * 2) - 75) / temp_x
+
+    walpaper = (105, 135, 138)
+    display.screen.fill(walpaper)
+    for key,elt in map.items():  # to do securty later if not map
         try:
             if isinstance(elt, Hubs):
                 pygame.draw.rect(
                     display.screen,
                     elt.color,
-                    (
-                        (elt.x * (size * 2) + padding),
-                        (elt.y * (size * 2)) + padding,
-                        size,
-                        size,
-                    ),
+                    ((elt.x * scale) + padding,
+                     (elt.y * scale) + display.height / 4,
+                     size, size ),
                 )
+                pygame.draw.line(
+                    display.screen,
+                    "black",
+                    ((map[map[key].links["links"][0]].x * (scale) + (scale / 4) + padding),
+                     (map[map[key].links["links"][0]].y * (scale) + (scale / 4) + display.height / 4) ),
+                    ((elt.x * (scale) + (scale / 4) + padding), (elt.y * (scale) + (scale / 4) + display.height / 4)), 10)
         except ValueError:
             running = False
             raise ValueError(f"This is not a color: '{elt.color}'")
@@ -112,10 +111,10 @@ def main():
 
 
 if __name__ == "__main__":
-    try:
+    # try:
         main()
-    except BaseException as e:
-        print(e)
+    # except BaseException as e:
+        # print(e)
 
 # to see how to choose the map, with or without display
 # within display maybe choose all available maps
