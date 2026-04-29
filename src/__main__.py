@@ -44,7 +44,7 @@ def find_start_end(map):
 
 def main():
 
-    choosen_map = "01_the_impossible_dream.txt"
+    choosen_map = "03_ultimate_challenge.txt"
     map = make_displayable(choosen_map)
     start, end = find_start_end(map)
     if (
@@ -86,9 +86,10 @@ def main():
                 pygame.draw.line(
                     display.screen,
                     "black",
-                    ((map[map[key].links["links"][0]].x * (scale) + (scale / 4) + padding),
-                     (map[map[key].links["links"][0]].y * (scale) + (scale / 4) + display.height / 4) ),
-                    ((elt.x * (scale) + (scale / 4) + padding), (elt.y * (scale) + (scale / 4) + display.height / 4)), 10)
+                    ((map[map[key].links["links"][0]].x * (scale) + (size / 2) + padding),
+                     (map[map[key].links["links"][0]].y * (scale) + (size / 2) + (display.height / 4)) ),
+                    ((elt.x * (scale) + (size / 2) + padding),
+                     (elt.y * (scale) + (size / 2) + (display.height / 4))), 5)
         except ValueError:
             running = False
             raise ValueError(f"This is not a color: '{elt.color}'")
