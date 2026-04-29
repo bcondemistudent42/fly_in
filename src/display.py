@@ -9,7 +9,7 @@ class Displayer:
     def __init__(self):
         pygame.init()
         info = pygame.display.Info()
-        width, height = info.current_w - 200, info.current_h - 150
+        width, height = 3 * (info.current_w / 4), 3 * (info.current_h / 4)
         self.screen = pygame.display.set_mode((width, height))
         self.width = width
         self.height = height

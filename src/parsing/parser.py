@@ -1,7 +1,7 @@
 import os
 from enum import StrEnum
 
-from src.parsing.checks import (
+from .checks import (
     check_hubs,
     check_metadata,
     check_metadata_connection,
@@ -9,7 +9,7 @@ from src.parsing.checks import (
     last_check,
     make_links,
 )
-from src.parsing.regex_extract import (
+from .regex_extract import (
     extract_color,
     extract_max_drones,
     extract_zone,

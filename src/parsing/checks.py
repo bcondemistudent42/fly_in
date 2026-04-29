@@ -1,4 +1,4 @@
-from src.parsing.regex_extract import (
+from .regex_extract import (
     extract_max_link_capacity,
     extract_max_drones,
     extract_color,
@@ -7,7 +7,7 @@ from src.parsing.regex_extract import (
 
 
 def make_links(my_map):
-    from src.parsing.parser import Hubs
+    from .parser import Hubs
 
     key_names = [x.name for x in my_map.values() if isinstance(x, Hubs)]
     for elt in my_map["hubs_links"]:
@@ -40,7 +40,7 @@ def check_simple_connection(connection_check):
 
 
 def last_check(start_name, end_name, my_hubs):
-    from src.parsing.parser import Utils
+    from .parser import Utils
 
     if start_name == "":
         raise ValueError(f"MISSING : {Utils.START_HUB}")
@@ -91,7 +91,7 @@ def check_metadata(my_data: str):
 
 
 def check_hubs(my_map):
-    from src.parsing.parser import Hubs
+    from .parser import Hubs
 
     hubs = [x for x in my_map.values() if isinstance(x, Hubs)]
 

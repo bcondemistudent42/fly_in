@@ -1,8 +1,8 @@
 import math
 import os
 
-from src.display import Displayer
-from src.parsing.parser import Hubs, make_displayable
+from .display import Displayer
+from .parsing.parser import Hubs, make_displayable
 
 os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
 
@@ -10,30 +10,37 @@ import pygame  # noqa: E402
 
 
 def find_start_end(map):
-    start = "".join([x.name for x in map.values() if isinstance(x, Hubs)
-                    and x.start is True])
-    end = "".join([x.name for x in map.values() if isinstance(x, Hubs)
-                   and x.end is True])
+    start = "".join(
+        [
+            x.name
+            for x in map.values()
+            if isinstance(x, Hubs) and x.start is True
+        ]
+    )
+    end = "".join(
+        [x.name for x in map.values() if isinstance(x, Hubs) and x.end is True]
+    )
     return (start, end)
 
+
 # def get_maps():
-    # output = []
-    # for x in os.listdir("maps"):
-        # if x.endswith(".txt"):
-            # output.append(x)
-        # else:
-            # raise ValueError("Map must be a .txt")
-    # return output
-# 
+# output = []
+# for x in os.listdir("maps"):
+# if x.endswith(".txt"):
+# output.append(x)
+# else:
+# raise ValueError("Map must be a .txt")
+# return output
+#
 # def test_maps():
-        # for choosen_map in get_maps():
-        # map = make_displayable(choosen_map)
-        # print(choosen_map)
-        # start, end = find_start_end(map)
-        # if (map[start].max_drone < map["nb_drones"] or
-                # map[end].max_drone < map["nb_drones"]):
-            # raise ValueError(
-                # f"START and END must have at least {map['nb_drones']} max drones")
+# for choosen_map in get_maps():
+# map = make_displayable(choosen_map)
+# print(choosen_map)
+# start, end = find_start_end(map)
+# if (map[start].max_drone < map["nb_drones"] or
+# map[end].max_drone < map["nb_drones"]):
+# raise ValueError(
+# f"START and END must have at least {map['nb_drones']} max drones")
 
 
 def main():
@@ -41,23 +48,35 @@ def main():
     choosen_map = "01_linear_path.txt"
     map = make_displayable(choosen_map)
     start, end = find_start_end(map)
-    if (map[start].max_drone < map["nb_drones"] or
-            map[end].max_drone < map["nb_drones"]):
+    if (
+        map[start].max_drone < map["nb_drones"]
+        or map[end].max_drone < map["nb_drones"]
+    ):
         raise ValueError(
-            f"START and END must have at least {map['nb_drones']} max drones")
+            f"START and END must have at least {map['nb_drones']} max drones"
+        )
     display = Displayer()
 
+    size = 1
     nbr_hubs = sum([1 for x in map.values() if isinstance(x, Hubs)])
     nb_columns = int(math.sqrt(nbr_hubs))
     nb_lines = nbr_hubs // nb_columns
     size = min(display.width // nb_columns, display.height // nb_lines)
+    x_min = min([x.x for x in map.values() if isinstance(x, Hubs)])
+    x_max = max([x.x for x in map.values() if isinstance(x, Hubs)])
 
-    if size > 120:
-        size = 120
-    if size < 40:
-        size = 40
+    y_min = min([x.y for x in map.values() if isinstance(x, Hubs)])
+    y_max = max([x.y for x in map.values() if isinstance(x, Hubs)])
 
-    padding = size // 4
+    print(x_min, x_max)
+    print(y_min, y_max)
+
+    # if size > 120:
+    #     size = 120
+    # if size < 40:
+    size = 40
+
+    padding = size
     for elt in map.values():  # to do securty later if not map
         try:
             if isinstance(elt, Hubs):
@@ -66,7 +85,7 @@ def main():
                     elt.color,
                     (
                         (elt.x * (size * 2) + padding),
-                        (elt.y * (size * 2)) + (display.height // 2) - size,
+                        (elt.y * (size * 2)) + padding,
                         size,
                         size,
                     ),
@@ -97,7 +116,6 @@ if __name__ == "__main__":
         main()
     except BaseException as e:
         print(e)
-
 
 # to see how to choose the map, with or without display
 # within display maybe choose all available maps
