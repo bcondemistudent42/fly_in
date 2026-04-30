@@ -1,11 +1,6 @@
-import os
 
 from .display import Displayer
 from .parsing.parser import Hubs, make_displayable
-
-os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
-
-import pygame  # noqa: E402
 
 
 def find_start_end(map):
@@ -55,54 +50,8 @@ def main():
             f"START and END must have at least {map['nb_drones']} max drones"
         )
     display = Displayer()
+    display.to_screen(map)
 
-    x_max = max([x.x for x in map.values() if isinstance(x, Hubs)])
-    x_min = min([x.x for x in map.values() if isinstance(x, Hubs)])
-    y_min = min([x.y for x in map.values() if isinstance(x, Hubs)])
-
-    size = 75
-    padding = size / 2
-
-    for elt in map.values():
-        if isinstance(elt, Hubs):
-            elt.x = elt.x - x_min
-            elt.y = elt.y - y_min
-
-    temp_x = max(1, x_max - x_min)
-    scale = (display.width - (padding * 2) - 75) / temp_x
-
-    walpaper = (105, 135, 138)
-    display.screen.fill(walpaper)
-    for key,elt in map.items():  # to do securty later if not map
-        try:
-            if isinstance(elt, Hubs):
-                pygame.draw.rect(
-                    display.screen,
-                    elt.color,
-                    ((elt.x * scale) + padding,
-                     (elt.y * scale) + display.height / 4,
-                     size, size ),
-                )
-                pygame.draw.line(
-                    display.screen,
-                    "black",
-                    ((map[map[key].links["links"][0]].x * (scale) + (size / 2) + padding),
-                     (map[map[key].links["links"][0]].y * (scale) + (size / 2) + (display.height / 4)) ),
-                    ((elt.x * (scale) + (size / 2) + padding),
-                     (elt.y * (scale) + (size / 2) + (display.height / 4))), 5)
-        except ValueError:
-            running = False
-            raise ValueError(f"This is not a color: '{elt.color}'")
-    pygame.display.flip()
-
-    running = True
-    while running:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_q:
-                    running = False
 
     # hubs = [x for x in map.values() if isinstance(x, Hubs)]
     # for i in range(len(hubs)):
