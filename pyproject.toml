@@ -5,6 +5,7 @@ description = "A programs that handle many drones"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
+    "clock>=0.1",
     "pygame>=2.6.1",
 ]
 

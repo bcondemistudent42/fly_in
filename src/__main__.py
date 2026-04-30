@@ -1,3 +1,8 @@
+import clock
+
+import os
+os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
+import pygame  # noqa: E402
 
 from .display import Displayer
 from .parsing.parser import Hubs, make_displayable
@@ -40,18 +45,33 @@ def find_start_end(map):
 def main():
 
     choosen_map = "03_ultimate_challenge.txt"
-    map = make_displayable(choosen_map)
-    start, end = find_start_end(map)
+    my_map = make_displayable(choosen_map)
+    start, end = find_start_end(my_map)
     if (
-        map[start].max_drone < map["nb_drones"]
-        or map[end].max_drone < map["nb_drones"]
+        my_map[start].max_drone < my_map["nb_drones"]
+        or my_map[end].max_drone < my_map["nb_drones"]
     ):
         raise ValueError(
-            f"START and END must have at least {map['nb_drones']} max drones"
+            f"START and END must have at least {my_map['nb_drones']} max drones"
         )
-    display = Displayer()
-    display.to_screen(map)
+    display = Displayer(my_map)
+    display.reset()
+    display.draw_hubs()
+    pygame.display.flip()
 
+
+    print(display.my_map["start"].x, display.my_map["start"].y)
+    pygame.display.flip()
+
+
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_q:
+                    running = False
 
     # hubs = [x for x in map.values() if isinstance(x, Hubs)]
     # for i in range(len(hubs)):
