@@ -58,10 +58,13 @@ def main():
     display.reset()
     display.draw_hubs()
     pygame.display.flip()
+    
+    test = pygame.time.Clock()
 
-
-    print(display.my_map["start"].x, display.my_map["start"].y)
-    pygame.display.flip()
+    for i in range(100):
+        test.tick(70)
+        display.display_drone(i, i)
+        pygame.display.flip()
 
 
     running = True
@@ -89,6 +92,4 @@ if __name__ == "__main__":
 # to see how to choose the map, with or without display
 # within display maybe choose all available maps
 
-# to make parsing tested by mbichet
-
-# to handle correctly when hubs are outside the zone
+# to refacto the code, so that all corrinates of map are correct within the display
