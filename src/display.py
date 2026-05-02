@@ -26,7 +26,7 @@ class Displayer:
         y_min = min([x.y for x in self.my_map.values() if isinstance(x, Hubs)])
 
         self.drone = pygame.transform.scale(
-            pygame.image.load("yriffard.png").convert_alpha(), (75, 75)
+            pygame.image.load("drone.png").convert_alpha(), (75, 75)
         )
 
         self.math_utils(x_max, x_min, y_max, y_min)

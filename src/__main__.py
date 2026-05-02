@@ -66,22 +66,25 @@ def main():
     my_drones = [Drone(my_map, start) for x in range(my_map["nb_drones"])]
 
     first_drone = my_drones[0]
+    first_drone.next = (my_map["dist_gate1"].x, my_map["dist_gate1"].y)
 
-    # i = first_drone.coord[0]
-    # j = first_drone.coord[1]
-    # while (i < first_drone.next[0] or j < first_drone.next[1]):
-            # test.tick(60)
-            # display.display_drone(i, j)
-            # pygame.display.flip()
-            # i += 1
-            # j += 1
-    i = display.my_map[start].x
-    j = display.my_map[start].y #to add a class drones with tuple of coordinates
-    while (i < display.my_map[end].x or j < display.my_map[end].y):
+    i = first_drone.coord[0]
+    j = first_drone.coord[1]
+    while (i < first_drone.next[0] or j < first_drone.next[1]):
+            if i == first_drone.next[0]:
+                 pass
+            else:
+                 i += 1
+            if j == first_drone.next[1]:
+                 pass
+            else:
+                 j += 1
             test.tick(60)
             display.display_drone(i, j)
             pygame.display.flip()
-            i += 1
+            # to make this pattern a function
+            # and after the call of the function overide the past coord
+
 
 
     running = True
@@ -109,4 +112,5 @@ if __name__ == "__main__":
 # to see how to choose the map, with or without display
 # within display maybe choose all available maps
 
-# to refacto the code, so that all corrinates of map are correct within the display
+# to put in place a system where can put any picutre instad of drone
+# to do the djikstra algorythm and see when
