@@ -4,8 +4,10 @@ import os
 os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
 import pygame  # noqa: E402
 
+from .drone import Drone
 from .display import Displayer
-from .parsing.parser import Hubs, make_displayable
+from .parsing.parser import make_displayable
+from .parsing.parsing_class import Hubs
 
 
 def find_start_end(map):
@@ -61,10 +63,25 @@ def main():
     
     test = pygame.time.Clock()
 
-    for i in range(100):
-        test.tick(70)
-        display.display_drone(i, i)
-        pygame.display.flip()
+    my_drones = [Drone(my_map, start) for x in range(my_map["nb_drones"])]
+
+    first_drone = my_drones[0]
+
+    # i = first_drone.coord[0]
+    # j = first_drone.coord[1]
+    # while (i < first_drone.next[0] or j < first_drone.next[1]):
+            # test.tick(60)
+            # display.display_drone(i, j)
+            # pygame.display.flip()
+            # i += 1
+            # j += 1
+    i = display.my_map[start].x
+    j = display.my_map[start].y #to add a class drones with tuple of coordinates
+    while (i < display.my_map[end].x or j < display.my_map[end].y):
+            test.tick(60)
+            display.display_drone(i, j)
+            pygame.display.flip()
+            i += 1
 
 
     running = True
