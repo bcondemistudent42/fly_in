@@ -1,4 +1,3 @@
-import clock
 
 import os
 os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
@@ -8,6 +7,8 @@ from .drone import Drone
 from .display import Displayer
 from .parsing.parser import make_displayable
 from .parsing.parsing_class import Hubs
+
+from .dijkstra_solver import dijkstra_init
 
 
 def find_start_end(map):
@@ -60,14 +61,16 @@ def main():
     display.reset()
     display.draw_hubs()
     pygame.display.flip()
-    
+
     the_clock = pygame.time.Clock()
+    way = dijkstra_init(my_map, start)
 
     my_drones = [Drone(my_map, start) for x in range(my_map["nb_drones"])]
 
     first_drone = my_drones[0]
-    first_drone.next = (my_map["dist_gate1"].x, my_map["dist_gate1"].y)
-    display.move_drone(first_drone, the_clock)
+    for elt in way:
+        display.move_drone(first_drone, the_clock)
+        first_drone.next = (my_map[elt].x, my_map[elt].y)
 
     running = True
     while running:

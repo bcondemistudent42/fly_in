@@ -104,19 +104,24 @@ class Displayer:
         self.draw_hubs()
         self.screen.blit(self.drone, (my_x, my_y))
 
+
     def move_drone(self, my_drone, the_clock):
-        i = my_drone.coord[0]
-        j = my_drone.coord[1]
-        while (i < my_drone.next[0] or j < my_drone.next[1]):
-                if i == my_drone.next[0]:
-                     pass
-                else:
-                     i += 1
-                if j == my_drone.next[1]:
-                     pass
-                else:
-                     j += 1
-                the_clock.tick(60)
-                self.display_drone(i, j)
+        start = pygame.Vector2(my_drone.coord)
+        end = pygame.Vector2(my_drone.next)
+        pos = pygame.Vector2(start)
+
+        distance_totale = start.distance_to(end)
+        if distance_totale > 0:
+            direction = (end - start).normalize()
+            vitesse = 3
+
+            while pos.distance_to(end) > vitesse:
+                pos += direction * vitesse
+
+                self.display_drone(pos.x, pos.y)
                 pygame.display.flip()
-        my_drone.coord = (i, j)
+                the_clock.tick(60)
+
+        my_drone.coord = (end.x, end.y)
+        self.display_drone(end.x, end.y)
+        pygame.display.flip()

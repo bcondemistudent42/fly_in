@@ -4,3 +4,5 @@ class Drone:
         self.coord = (my_map[start].x, my_map[start].y)
         self.host_hub = start
         self.next = self.coord
+
+# to change later can't have one class in a emtpy file
