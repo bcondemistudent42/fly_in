@@ -20,10 +20,3 @@ def dijkstra_init(my_map, start):
                 dct_dij[elt.name].cost = 0
             else:
                 dct_dij[elt.name] = Dijkstra_Node(elt.name, elt.cost, elt.links["links"])
-
-    way = []
-    work_drone = [x for x in dct_dij.values() if x.visited is True][0]
-    while work_drone != "goal" :
-        work_drone.visited = True
-        for elt in work_drone.links:
-            
