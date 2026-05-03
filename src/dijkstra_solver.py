@@ -10,13 +10,41 @@ class Dijkstra_Node:
         self.origin = None
         self.links = adjacent_hubs
 
-def dijkstra_init(my_map, start):
-    dct_dij = {}
+def dijkstra_init(my_map, start, end):
+    hub_dijstra = {}
     for elt in my_map.values():
         if isinstance(elt, Hubs):
             if elt.name == start:
-                dct_dij[elt.name] = Dijkstra_Node(elt.name, elt.cost, elt.links["links"])
-                dct_dij[elt.name].visited = True
-                dct_dij[elt.name].cost = 0
+                hub_dijstra[elt.name] = Dijkstra_Node(elt.name, elt.cost, elt.links["links"])
+                hub_dijstra[elt.name].visited = True
+                hub_dijstra[elt.name].cost = 0
             else:
-                dct_dij[elt.name] = Dijkstra_Node(elt.name, elt.cost, elt.links["links"])
+                hub_dijstra[elt.name] = Dijkstra_Node(elt.name, elt.cost, elt.links["links"])
+    
+    work_hub = [x for x in hub_dijstra.values() if x.visited is True][0]
+    while work_hub.name != end and len([x for x in hub_dijstra.values() if x.visited is False]) != 0 :
+        # print(work_hub.name)
+        work_hub.visited = True
+        available = [x for x in hub_dijstra.values() if x.visited is False]
+        try:
+            nxt_min = min(available, key=lambda s: s.relative_cost)
+        except Exception:
+            print(available)
+            return
+        hub_dijstra[nxt_min.name].origin = work_hub
+        if hub_dijstra[nxt_min.name].relative_cost > work_hub.relative_cost:
+            hub_dijstra[nxt_min.name].relative_cost += work_hub.relative_cost
+        work_hub = hub_dijstra[nxt_min.name]
+
+    actual = hub_dijstra[end]
+    test = []
+    while(actual.name != "start"):
+        test.append(actual.name)
+        actual = actual.origin
+    test = test[::-1]
+    return test
+
+
+
+
+

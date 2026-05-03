@@ -63,7 +63,7 @@ def main():
     pygame.display.flip()
 
     the_clock = pygame.time.Clock()
-    way = dijkstra_init(my_map, start)
+    way = dijkstra_init(my_map, start, end)
 
     my_drones = [Drone(my_map, start) for x in range(my_map["nb_drones"])]
 
