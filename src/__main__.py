@@ -61,31 +61,13 @@ def main():
     display.draw_hubs()
     pygame.display.flip()
     
-    test = pygame.time.Clock()
+    the_clock = pygame.time.Clock()
 
     my_drones = [Drone(my_map, start) for x in range(my_map["nb_drones"])]
 
     first_drone = my_drones[0]
     first_drone.next = (my_map["dist_gate1"].x, my_map["dist_gate1"].y)
-
-    i = first_drone.coord[0]
-    j = first_drone.coord[1]
-    while (i < first_drone.next[0] or j < first_drone.next[1]):
-            if i == first_drone.next[0]:
-                 pass
-            else:
-                 i += 1
-            if j == first_drone.next[1]:
-                 pass
-            else:
-                 j += 1
-            test.tick(60)
-            display.display_drone(i, j)
-            pygame.display.flip()
-            # to make this pattern a function
-            # and after the call of the function overide the past coord
-
-
+    display.move_drone(first_drone, the_clock)
 
     running = True
     while running:
@@ -95,12 +77,6 @@ def main():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_q:
                     running = False
-
-    # hubs = [x for x in map.values() if isinstance(x, Hubs)]
-    # for i in range(len(hubs)):
-    #     print()
-    #     print(hubs[i].name)
-    #     print(hubs[i].max_drone)
 
 
 if __name__ == "__main__":
@@ -113,4 +89,5 @@ if __name__ == "__main__":
 # within display maybe choose all available maps
 
 # to put in place a system where can put any picutre instad of drone
+
 # to do the djikstra algorythm and see when

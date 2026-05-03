@@ -26,7 +26,7 @@ class Displayer:
         y_min = min([x.y for x in self.my_map.values() if isinstance(x, Hubs)])
 
         self.drone = pygame.transform.scale(
-            pygame.image.load("drone.png").convert_alpha(), (75, 75)
+            pygame.image.load("visual_drones/bitcoin.png").convert_alpha(), (75, 75)
         )
 
         self.math_utils(x_max, x_min, y_max, y_min)
@@ -69,9 +69,9 @@ class Displayer:
         )
 
     def math_utils(self, x_max, x_min, y_max, y_min):
-
         temp_x = max(1, x_max - x_min)
         temp_y = max(1, y_max - y_min)
+
         scale_x = (self.width - (self.padding * 2) - self.size) / temp_x
         scale_y = (self.height - (self.padding * 2) - self.size) / temp_y
         scale = min(scale_x, scale_y)
@@ -88,7 +88,6 @@ class Displayer:
         self.scale = scale
 
     def draw_hubs(self):
-
         if self.my_map is None:
             raise ValueError("Map Error")
 
@@ -104,3 +103,20 @@ class Displayer:
         self.reset()
         self.draw_hubs()
         self.screen.blit(self.drone, (my_x, my_y))
+
+    def move_drone(self, my_drone, the_clock):
+        i = my_drone.coord[0]
+        j = my_drone.coord[1]
+        while (i < my_drone.next[0] or j < my_drone.next[1]):
+                if i == my_drone.next[0]:
+                     pass
+                else:
+                     i += 1
+                if j == my_drone.next[1]:
+                     pass
+                else:
+                     j += 1
+                the_clock.tick(60)
+                self.display_drone(i, j)
+                pygame.display.flip()
+        my_drone.coord = (i, j)
