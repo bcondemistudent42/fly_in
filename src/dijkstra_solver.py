@@ -23,14 +23,12 @@ def dijkstra_init(my_map, start, end):
     
     work_hub = [x for x in hub_dijstra.values() if x.visited is True][0]
     while work_hub.name != end and len([x for x in hub_dijstra.values() if x.visited is False]) != 0 :
-        # print(work_hub.name)
         work_hub.visited = True
         available = [x for x in hub_dijstra.values() if x.visited is False]
-        try:
-            nxt_min = min(available, key=lambda s: s.relative_cost)
-        except Exception:
-            print(available)
+        if len(available) == 0: #here to add an if no links else choose the other min 
+            print("We have a problem in dijsktra no available hubs")
             return
+        nxt_min = min(available, key=lambda s: s.true_cost)
         hub_dijstra[nxt_min.name].origin = work_hub
         if hub_dijstra[nxt_min.name].relative_cost > work_hub.relative_cost:
             hub_dijstra[nxt_min.name].relative_cost += work_hub.relative_cost
@@ -43,6 +41,8 @@ def dijkstra_init(my_map, start, end):
         actual = actual.origin
     test = test[::-1]
     return test
+
+# to handle issues, the thing is that i am not looking in links but in all
 
 
 

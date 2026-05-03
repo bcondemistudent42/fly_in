@@ -47,7 +47,7 @@ def find_start_end(map):
 
 def main():
 
-    choosen_map = "03_ultimate_challenge.txt"
+    choosen_map = "01_linear_path.txt"
     my_map = make_displayable(choosen_map)
     start, end = find_start_end(my_map)
     if (
