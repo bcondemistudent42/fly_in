@@ -26,7 +26,8 @@ class Displayer:
         y_min = min([x.y for x in self.my_map.values() if isinstance(x, Hubs)])
 
         self.drone = pygame.transform.scale(
-            pygame.image.load("visual_drones/" + drone_img).convert_alpha(), (45, 45)
+            pygame.image.load("visual_drones/" + drone_img).convert_alpha(),
+            (45, 45),
         )
 
         self.math_utils(x_max, x_min, y_max, y_min)
@@ -47,7 +48,7 @@ class Displayer:
                 "black",
                 (
                     my_map[elt1].x + (self.size / 2),
-                    my_map[elt1].y + (self.size / 2) ,
+                    my_map[elt1].y + (self.size / 2),
                 ),
                 (
                     (elt.x + (self.size / 2)),
@@ -103,7 +104,6 @@ class Displayer:
         self.reset()
         self.draw_hubs()
         self.screen.blit(self.drone, (my_x, my_y))
-
 
     def move_drone(self, my_drone, the_clock):
         start = pygame.Vector2(my_drone.coord)

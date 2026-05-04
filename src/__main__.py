@@ -1,78 +1,33 @@
-
 import os
+
 os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
+import argparse
+
 import pygame  # noqa: E402
 
-import argparse
-import questionary
-
-
-from .drone import Drone
-from .display import Displayer
-from .parsing.parser import make_displayable
-from .parsing.parsing_class import Hubs
-
 from .dijkstra_solver import dijkstra_init
-
-
-def find_start_end(map):
-    start = "".join(
-        [
-            x.name
-            for x in map.values()
-            if isinstance(x, Hubs) and x.start is True
-        ]
-    )
-    end = "".join(
-        [x.name for x in map.values() if isinstance(x, Hubs) and x.end is True]
-    )
-    return (start, end)
-
-
-def get_maps():
-    output = []
-    for x in os.listdir("maps"):
-        if x.endswith(".txt"):
-            output.append(x)
-        else:
-            raise ValueError("Map must be a .txt")
-    return output
-
-
-def test_maps():
-    maps = get_maps()
-
-    for all_map in maps:
-        current_map = make_displayable(all_map)
-        start, end = find_start_end(current_map)
-        if (current_map[start].max_drone < current_map["nb_drones"] or
-            current_map[end].max_drone < current_map["nb_drones"]):
-            raise ValueError(f"START and END must have at least {current_map['nb_drones']} max drones")
-
-    choice = questionary.select(
-        "Choose one map:",
-        choices=maps,
-        style=questionary.Style([
-            ('qmark', 'fg:cyan bold'),
-            ('pointer', 'fg:yellow bold'),
-            ('highlighted', 'fg:yellow'),
-            ('answer', 'fg:green bold')
-            ])
-    ).ask()
-
-    return choice
+from .display import Displayer
+from .drone import Drone
+from .parsing.parser import make_displayable
+from .utils_main import find_start_end, test_maps
 
 
 def main():
 
     parser = argparse.ArgumentParser(
-                    prog='Fly_In',)
-    parser.add_argument("--drone",
-                        default="drone.png",
-                        required=False,
-                        help="Change the representation of the drones with a picture")
+        prog="Fly_In",
+    )
+    parser.add_argument(
+        "--drone",
+        default="drone.png",
+        required=False,
+        help="Change the representation of the drones with a picture",
+    )
     args = parser.parse_args()
     drone = args.drone
+
+    with open("visual_drones/" + drone):
+        pass
 
     choosen_map = test_maps()
     my_map = make_displayable(choosen_map)
@@ -115,6 +70,3 @@ if __name__ == "__main__":
         main()
     except BaseException as e:
         print(e)
-
-# to see how to choose the map, with or without display
-# within display maybe choose all available maps
