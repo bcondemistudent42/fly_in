@@ -47,7 +47,7 @@ def find_start_end(map):
 
 def main():
 
-    choosen_map = "01_linear_path.txt"
+    choosen_map = "test.txt"
     my_map = make_displayable(choosen_map)
     start, end = find_start_end(my_map)
     if (
@@ -71,6 +71,7 @@ def main():
     for elt in way:
         display.move_drone(first_drone, the_clock)
         first_drone.next = (my_map[elt].x, my_map[elt].y)
+    display.move_drone(first_drone, the_clock)
 
     running = True
     while running:
@@ -83,10 +84,10 @@ def main():
 
 
 if __name__ == "__main__":
-    # try:
+    try:
         main()
-    # except BaseException as e:
-        # print(e)
+    except BaseException as e:
+        print(e)
 
 # to see how to choose the map, with or without display
 # within display maybe choose all available maps

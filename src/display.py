@@ -17,7 +17,7 @@ class Displayer:
         self.width = width
         self.height = height
         self.my_map = my_map
-        self.size = 75
+        self.size = 40
         self.padding = self.size / 2
 
         x_max = max([x.x for x in self.my_map.values() if isinstance(x, Hubs)])
@@ -26,7 +26,7 @@ class Displayer:
         y_min = min([x.y for x in self.my_map.values() if isinstance(x, Hubs)])
 
         self.drone = pygame.transform.scale(
-            pygame.image.load("visual_drones/bitcoin.png").convert_alpha(), (75, 75)
+            pygame.image.load("visual_drones/bitcoin.png").convert_alpha(), (45, 45)
         )
 
         self.math_utils(x_max, x_min, y_max, y_min)
