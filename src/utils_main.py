@@ -40,8 +40,9 @@ def test_maps():
             current_map[start].max_drone < current_map["nb_drones"]
             or current_map[end].max_drone < current_map["nb_drones"]
         ):
+            txt = "START and END must have at least"
             raise ValueError(
-                f"START and END must have at least {current_map['nb_drones']} max drones"
+                f"{txt} {current_map['nb_drones']} max drones"
             )
 
     choice = questionary.select(

@@ -1,15 +1,15 @@
-import os
-
-os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
-import argparse
-
-import pygame  # noqa: E402
-
 from .dijkstra_solver import dijkstra_init
 from .display import Displayer
 from .drone import Drone
 from .parsing.parser import make_displayable
 from .utils_main import find_start_end, test_maps
+
+import os
+import argparse
+
+os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
+
+import pygame  # noqa: E402
 
 
 def main():
@@ -36,8 +36,9 @@ def main():
         my_map[start].max_drone < my_map["nb_drones"]
         or my_map[end].max_drone < my_map["nb_drones"]
     ):
+        txt = "START and END must have at least "
         raise ValueError(
-            f"START and END must have at least {my_map['nb_drones']} max drones"
+            f"{txt} {my_map['nb_drones']} max drones"
         )
     display = Displayer(my_map, drone)
     display.reset()
