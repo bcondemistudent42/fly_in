@@ -59,6 +59,6 @@ class Hubs:
         elif zone_type == ZoneType.RESTRICTED:
             self.cost = 2
         elif zone_type == ZoneType.PRIORITY:
-            self.cost = float(0.9)
+            self.cost = float(1)
         else:
             raise ValueError(f"Wrong zone type: {zone_type} does not exist")

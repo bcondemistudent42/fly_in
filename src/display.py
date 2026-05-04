@@ -7,7 +7,7 @@ import pygame  # noqa: E402
 
 
 class Displayer:
-    def __init__(self, my_map) -> None:
+    def __init__(self, my_map, drone_img) -> None:
         pygame.init()
         info = pygame.display.Info()
 
@@ -17,7 +17,7 @@ class Displayer:
         self.width = width
         self.height = height
         self.my_map = my_map
-        self.size = 40
+        self.size = 50
         self.padding = self.size / 2
 
         x_max = max([x.x for x in self.my_map.values() if isinstance(x, Hubs)])
@@ -26,7 +26,7 @@ class Displayer:
         y_min = min([x.y for x in self.my_map.values() if isinstance(x, Hubs)])
 
         self.drone = pygame.transform.scale(
-            pygame.image.load("visual_drones/bitcoin.png").convert_alpha(), (45, 45)
+            pygame.image.load("visual_drones/" + drone_img).convert_alpha(), (45, 45)
         )
 
         self.math_utils(x_max, x_min, y_max, y_min)
