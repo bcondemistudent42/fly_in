@@ -26,7 +26,7 @@ def dijkstra_init(map, start, end, work_hub, reserved):
                 current.relative_cost = (
                     work_hub.relative_cost + current.true_cost
                 )
-            reserved[work_hub.name].append(t)
+            reserved[work_hub.name].append(t) # to init at the end
             check = False
             for elt in available:
                 if elt.name == current.name:
