@@ -56,13 +56,23 @@ def main():
 
     my_drones = [Drone(my_map, start) for x in range(my_map["nb_drones"])]
 
-
+    from  .dijkstra_solver import Dijkstra_Node
+    work_hub = Dijkstra_Node(my_map[start].name, my_map[start].cost, my_map[start].max_drone, my_map[start].links["links"])
+    work_hub.visited = True
+    work_hub.relative_cost = 0
+    work_hub.true_cost = 0
+    reserved = {}
+    reserved[work_hub.name] = []
+    k = 0
     for drone in my_drones:
-        drone.path = dijkstra_init(my_map, start, end)
+        k += 1
+        reserved = dijkstra_init(my_map, start, end, work_hub, reserved) #do unpack technique later let it like this for now
+        drone.path = reserved
+        print(drone.path)
+        print("______________________________________")
 
 
-    for elt in my_drones:
-        drone_path(my_map, display, elt, drone.path, the_clock)
+    
 
 
 
@@ -81,3 +91,6 @@ if __name__ == "__main__":
         main()
     # except BaseException as e:
         # print(e)
+
+
+# to add security when no link to the end
