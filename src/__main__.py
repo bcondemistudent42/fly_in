@@ -12,6 +12,12 @@ os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
 import pygame  # noqa: E402
 
 
+def drone_path(my_map, display, drone, way, the_clock):
+    for elt in way:
+        display.move_drone(drone, the_clock)
+        drone.next = (my_map[elt].x, my_map[elt].y)
+        display.move_drone(drone, the_clock)
+
 def main():
 
     parser = argparse.ArgumentParser(
@@ -46,15 +52,19 @@ def main():
     pygame.display.flip()
 
     the_clock = pygame.time.Clock()
-    way = dijkstra_init(my_map, start, end)
+   
 
     my_drones = [Drone(my_map, start) for x in range(my_map["nb_drones"])]
 
-    first_drone = my_drones[0]
-    for elt in way:
-        display.move_drone(first_drone, the_clock)
-        first_drone.next = (my_map[elt].x, my_map[elt].y)
-    display.move_drone(first_drone, the_clock)
+
+    for drone in my_drones:
+        drone.path = dijkstra_init(my_map, start, end)
+
+
+    for elt in my_drones:
+        drone_path(my_map, display, elt, drone.path, the_clock)
+
+
 
     running = True
     while running:
@@ -67,7 +77,7 @@ def main():
 
 
 if __name__ == "__main__":
-    try:
+    # try:
         main()
-    except BaseException as e:
-        print(e)
+    # except BaseException as e:
+        # print(e)

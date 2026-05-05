@@ -11,40 +11,35 @@ class Dijkstra_Node:
         self.links = adjacent_hubs
 
 
-def dijkstra_init(my_map, start, end):
+def dijkstra_init(map, start, end):
     hub_dijstra = {}
-    for elt in my_map.values():
-        if isinstance(elt, Hubs):
-            if elt.name == start:
-                hub_dijstra[elt.name] = Dijkstra_Node(
-                    elt.name, elt.cost, elt.links["links"]
-                )
-                hub_dijstra[elt.name].visited = True
-                hub_dijstra[elt.name].relative_cost = 0
-                hub_dijstra[elt.name].true_cost = 0
-            else:
-                hub_dijstra[elt.name] = Dijkstra_Node(
-                    elt.name, elt.cost, elt.links["links"]
-                )
+    hub_dijstra[start] = (Dijkstra_Node(map[start].name, map[start].cost, map[start].links["links"]), 0)
+    hub_dijstra[start][0].visited = True
+    hub_dijstra[start][0].relative_cost = 0
+    hub_dijstra[start][0].true_cost = 0
 
-    work_hub = [x for x in hub_dijstra.values() if x.visited is True][0]
-    while hub_dijstra[end].origin is None:
+    work_hub = hub_dijstra[start][0]
+    available = []
+    t = 0
+    while work_hub.name is not end:
         work_hub.visited = True
         for elt in work_hub.links:
+            current = Dijkstra_Node(map[elt].name, map[elt].cost, map[elt].links["links"])
             if (
-                hub_dijstra[elt].relative_cost
-                > work_hub.relative_cost + hub_dijstra[elt].true_cost
+                current.relative_cost
+                > work_hub.relative_cost + current.true_cost
             ):
-                hub_dijstra[elt].relative_cost = (
-                    work_hub.relative_cost + hub_dijstra[elt].true_cost
+                current.relative_cost = (
+                    work_hub.relative_cost + current.true_cost
                 )
-                hub_dijstra[elt].origin = work_hub
+                current.origin = (work_hub, t)
+                available.append(current)
         if (
             len(
                 [
                     x
-                    for x in hub_dijstra.values()
-                    if x.origin is not None and x.visited is False
+                    for x in available
+                    if x.origin is not None and x.visited is False and #add for next t of x is not at max usage
                 ]
             )
             == 0
@@ -53,19 +48,22 @@ def dijkstra_init(my_map, start, end):
         work_hub = min(
             [
                 x
-                for x in hub_dijstra.values()
-                if x.origin is not None and x.visited is False
+                for x in available
+                if x.origin is not None and x.visited is False #add for next t if not at max usage
             ],
             key=lambda s: s.relative_cost,
         )
+        t += 1
 
-    actual = hub_dijstra[end]
-    test = []
-    while actual.origin is not None:
-        if actual.name is not None:
-            print(actual.name)
-            test.append(actual.name)
-        actual = actual.origin
-    test = test[::-1]
-    print(test)
-    return test
+    print()
+    output = []
+    for elt in available:
+        if elt.name == end:
+            current_last = elt
+            output.append(current_last.name)
+            current_last = current_last.origin
+            while current_last[0].name != start:
+                output.append(current_last[0].name)
+                current_last = current_last[0].origin
+    output = output[::-1]
+    return output
