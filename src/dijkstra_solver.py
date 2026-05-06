@@ -11,14 +11,13 @@ class Dijkstra_Node:
         self.links = adjacent_hubs
 
 
-def dijkstra_init(map, start, end):
-    hub_dijstra = {}
-    hub_dijstra[start] = (Dijkstra_Node(map[start].name, map[start].cost, map[start].links["links"]), 0)
-    hub_dijstra[start][0].visited = True
-    hub_dijstra[start][0].relative_cost = 0
-    hub_dijstra[start][0].true_cost = 0
+def dijkstra_init(map, start, end, reserved, drone_name):
 
-    work_hub = hub_dijstra[start][0]
+    work_hub = Dijkstra_Node(map[start].name, map[start].cost, map[start].links["links"])
+    work_hub.visited = True
+    work_hub.relative_cost = 0
+    work_hub.true_cost = 0
+
     available = []
     t = 0
     while work_hub.name is not end:
@@ -32,18 +31,19 @@ def dijkstra_init(map, start, end):
                 current.relative_cost = (
                     work_hub.relative_cost + current.true_cost
                 )
-                current.origin = (work_hub, t)
+                current.origin = work_hub
                 available.append(current)
         if (
             len(
                 [
                     x
                     for x in available
-                    if x.origin is not None and x.visited is False and #add for next t of x is not at max usage
+                    if x.origin is not None and x.visited is False #add for next t of x is not at max usage
                 ]
             )
             == 0
-        ):
+        ): #to do here the choice of node depending on the time
+        # must allow to stay on itself node len is 0
             raise ValueError("No path found")
         work_hub = min(
             [
@@ -55,15 +55,10 @@ def dijkstra_init(map, start, end):
         )
         t += 1
 
-    print()
     output = []
-    for elt in available:
-        if elt.name == end:
-            current_last = elt
-            output.append(current_last.name)
-            current_last = current_last.origin
-            while current_last[0].name != start:
-                output.append(current_last[0].name)
-                current_last = current_last[0].origin
+    #to add here the reservation table
+    print(work_hub.name)
+    #to add a while until start == None
+    # then add each node if available depending time
     output = output[::-1]
     return output
