@@ -61,8 +61,8 @@ def main():
         drone.path = dijkstra_init(my_map, start, end, reserved, drone)
 
 
-    for elt in my_drones:
-        drone_path(my_map, display, elt, drone.path, the_clock)
+    # for elt in my_drones:
+        # drone_path(my_map, display, elt, drone.path, the_clock)
 
 
 

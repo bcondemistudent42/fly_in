@@ -21,6 +21,7 @@ def dijkstra_init(map, start, end, reserved, drone_name):
     available = []
     t = 0
     while work_hub.name is not end:
+        print(f"work_hub == {work_hub.name} \nt == {t}\n\n")
         work_hub.visited = True
         for elt in work_hub.links:
             current = Dijkstra_Node(map[elt].name, map[elt].cost, map[elt].links["links"])
@@ -49,16 +50,26 @@ def dijkstra_init(map, start, end, reserved, drone_name):
             [
                 x
                 for x in available
-                if x.origin is not None and x.visited is False #add for next t if not at max usage
+                if x.origin is not None and x.visited is False and (x.name, t) not in reserved#add for next t if not at max usage
             ],
             key=lambda s: s.relative_cost,
         )
         t += 1
 
-    output = []
+    temp = []
+    while work_hub.name != start:
+        temp.append(work_hub.name)
+        work_hub = work_hub.origin
     #to add here the reservation table
-    print(work_hub.name)
+    output = []
+    temp = temp[::-1]
+    i = 1
+    for elt in temp:
+        output.append((elt, i))
+        i += 1
     #to add a while until start == None
     # then add each node if available depending time
-    output = output[::-1]
+    print(output)
+    print()
+    print()
     return output
