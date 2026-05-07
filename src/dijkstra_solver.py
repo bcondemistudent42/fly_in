@@ -48,16 +48,13 @@ def dijkstra_init(map, start, end, reserved, drone_name):
             [
                 x
                 for x in available
-                if x.origin is not None and x.visited is False#add for next t if not at max usage
+                if x.origin is not None and x.visited is False
             ],
             key=lambda s: s.relative_cost,
         )
-        table = create_table(work_hub, start)
+        table = create_table(work_hub, start, reserved)
         print(f"table == {table}")
         print(f"reserved == {reserved}")
-        for elt in table:
-            if elt in reserved:
-                # to see the logic behind, or pass and somewhere else or stay
 
    #to add a while until start == None
     # then add each node if available depending time
@@ -68,16 +65,25 @@ def dijkstra_init(map, start, end, reserved, drone_name):
     print(rslt)
     return rslt
 
-def create_table(work_hub, start):
+def create_table(work_hub, start, reserved):
     temp = []
     while work_hub.name != start:
         temp.append(work_hub.name)
         work_hub = work_hub.origin
-    #to add here the reservation table
+    #to do here, the minium thin ect if the node is in reserved
     output = []
     temp = temp[::-1]
     i = 1
     for elt in temp:
         output.append((elt, i))
         i += 1
+    
+    for elt in output:
+        if elt in reserved:
+            break
+            # i have to take the minimum after added +1 to relative cost of tha actual 
+            # and puted it in available
+            # I MUST HANDLE THE TIME THING TO PUT IT TO THE NEXT t
+            # to see the logic behind, or pass and somewhere else or stay
+
     return output
