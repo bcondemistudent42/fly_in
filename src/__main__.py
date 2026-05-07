@@ -58,7 +58,7 @@ def main():
 
     reserved = []
     for drone in my_drones:
-        drone.path = dijkstra_init(my_map, start, end, reserved, drone)
+        reserved = dijkstra_init(my_map, start, end, reserved, drone)
 
 
     # for elt in my_drones:
