@@ -52,7 +52,7 @@ def dijkstra_init(map, start, end, reserved, drone_name):
             ],
             key=lambda s: s.relative_cost,
         )
-        table = create_table(work_hub, start, reserved)
+        table = create_table(work_hub, start, reserved, available)
         print(f"table == {table}")
         print(f"reserved == {reserved}")
 
@@ -61,16 +61,16 @@ def dijkstra_init(map, start, end, reserved, drone_name):
     # print(output)
     print()
     print()
-    rslt = create_table(work_hub, start)
+    rslt = create_table(work_hub, start, reserved, available)
     print(rslt)
     return rslt
 
-def create_table(work_hub, start, reserved):
+def create_table(work_hub, start, reserved, available):
     temp = []
     while work_hub.name != start:
         temp.append(work_hub.name)
         work_hub = work_hub.origin
-    #to do here, the minium thin ect if the node is in reserved
+    #to do here, the minimum thin ect if the node is in reserved
     output = []
     temp = temp[::-1]
     i = 1
@@ -78,8 +78,16 @@ def create_table(work_hub, start, reserved):
         output.append((elt, i))
         i += 1
     
-    for elt in output:
-        if elt in reserved:
+    for work_hub_bis in output:
+        if work_hub_bis in reserved:
+            temp = [x for x in available if x.origin is not None and x.visited is False]
+            temp.append(work_hub)
+            work_hub.relative_cost += 1
+            new_work_hub = min(temp, key=lambda s: s.relative_cost)
+            if new_work_hub == work_hub:
+                # find a system to pass to the next t = time
+            else:
+                # just choose another hub
             break
             # i have to take the minimum after added +1 to relative cost of tha actual 
             # and puted it in available
