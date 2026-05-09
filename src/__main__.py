@@ -58,8 +58,8 @@ def main():
 
     reserved = set()
     for drone in my_drones:
-        reserved = dijkstra_init(my_map, start, end, reserved, drone)
-# faire difference entre chemin et table de reservation
+        reserved, drone.path = dijkstra_init(my_map, start, end, reserved)
+        print(drone.path)
 
     # for elt in my_drones:
         # drone_path(my_map, display, elt, drone.path, the_clock)

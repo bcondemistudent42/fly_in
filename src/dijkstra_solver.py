@@ -11,7 +11,7 @@ class Dijkstra_Node:
         self.links = adjacent_hubs
 
 
-def dijkstra_init(map, start, end, reserved, drone_name):
+def dijkstra_init(map, start, end, reserved):
 
     work_hub = Dijkstra_Node(map[start].name, map[start].cost, map[start].links["links"])
     work_hub.visited = True
@@ -36,12 +36,12 @@ def dijkstra_init(map, start, end, reserved, drone_name):
                 current.origin = (work_hub, t)
                 available.append((current, t))
         check = [ x for x in available if x[0].origin is not None and x[0].visited is False and (x[0].name, x[1]) not in reserved]#add for next t of x is not at max usage
-        check1 = [ (x[0].name, x[1]) for x in available if x[0].origin is not None and x[0].visited is False and (x[0].name, x[1]) not in reserved]#add for next t of x is not at max usage
-        print(check1)
+        # check1 = [ (x[0].name, x[1]) for x in available if x[0].origin is not None and x[0].visited is False and (x[0].name, x[1]) not in reserved]#add for next t of x is not at max usage
+        # print(check1)
         if (len(check) == 0): #to do here the choice of node depending on the time
             work_hub[0].relative_cost += 1 # must allow to stay on itself node len is 0
             check.append(work_hub)
-            print("giga caca", work_hub[0].name)
+            # print("giga caca", work_hub[0].name)
         work_hub = min(
             [ x for x in check],
             key=lambda s: s[0].relative_cost,
@@ -53,13 +53,29 @@ def dijkstra_init(map, start, end, reserved, drone_name):
     # print(output)
     print()
     print()
-    rslt = do_reservation(work_hub, start, reserved, available, end)
-    print(rslt)
-    return rslt
+    reserv_table = do_reservation(work_hub, start, reserved, available, end)
+    drone_path = do_path(work_hub, start)
+    # print(reserv_table)
+    return reserv_table, drone_path 
+
+
+def do_path(work_hub, start):
+    output = []
+    while (work_hub[0].name != start):
+        output.append((work_hub[0].name, work_hub[1]))
+        work_hub = work_hub[0].origin[0]
+        # print(work_hub)
+    # print(output)
+    return output
+
+
+
 
 def do_reservation(work_hub, start, reserved, available, end):
     while work_hub[0].name != start:
         work_hub = work_hub[0].origin[0]
         reserved.add(tuple((work_hub[0].name, work_hub[1])))
-
     return reserved
+
+# to do the function to return way and unpack
+# in main, 
