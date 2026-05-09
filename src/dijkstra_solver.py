@@ -34,7 +34,7 @@ def dijkstra_init(map, start, end, reserved):
                 )
                 current.origin = (work_hub, t)
                 available.append((current, t))
-        check = [ x for x in available if x[0].origin is not None and x[0].visited is False and (x[0].name, x[1]) not in reserved]#add for next t of x is not at max usage
+        check = [x for x in available if x[0].origin is not None and x[0].visited is False and (x[0].name, x[1]) not in reserved]#add for next t of x is not at max usage
         # check1 = [ (x[0].name, x[1]) for x in available if x[0].origin is not None and x[0].visited is False and (x[0].name, x[1]) not in reserved]#add for next t of x is not at max usage
         # print(check1)
         if (len(check) == 0): #to do here the choice of node depending on the time

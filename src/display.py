@@ -109,6 +109,13 @@ class Displayer:
         # gerer les cas links capacity aussi
         self.screen.blit(self.drone_img, (my_x, my_y))
 
+    def display_drones(self, drones_positions):
+        """Affiche tous les drones sur l'écran"""
+        self.reset()
+        self.draw_hubs()
+        for pos in drones_positions:
+            self.screen.blit(self.drone_img, (pos[0], pos[1]))
+
     def move_drone(self, arg_start, arg_end, the_clock):
         start = pygame.Vector2(arg_start)
         end = pygame.Vector2(arg_end)
@@ -128,3 +135,45 @@ class Displayer:
 
         self.display_drone(end.x, end.y)
         pygame.display.flip()
+
+    def move_drones(self, drones, the_clock):
+        """Anime tous les drones simultanément d'une étape à l'autre"""
+        positions = [pygame.Vector2(drone.coord) for drone in drones]
+        destinations = [pygame.Vector2(drone.next) for drone in drones]
+
+        # Calculer les distances et directions
+        distances = [
+            positions[i].distance_to(destinations[i])
+            for i in range(len(drones))
+        ]
+        directions = []
+        for i in range(len(drones)):
+            if distances[i] > 0:
+                directions.append((destinations[i] - positions[i]).normalize())
+            else:
+                directions.append(pygame.Vector2(0, 0))
+
+        vitesse = 3
+        while (
+            max(
+                pos.distance_to(dest)
+                for pos, dest in zip(positions, destinations)
+            )
+            > vitesse
+        ):
+            for i in range(len(drones)):
+                if positions[i].distance_to(destinations[i]) > vitesse:
+                    positions[i] += directions[i] * vitesse
+
+            # Afficher tous les drones
+            self.display_drones([pos for pos in positions])
+            pygame.display.flip()
+            the_clock.tick(60)
+
+        # Affichage final à la destination
+        self.display_drones([dest for dest in destinations])
+        pygame.display.flip()
+
+        # Mettre à jour les coordonnées des drones
+        for i, drone in enumerate(drones):
+            drone.coord = (destinations[i].x, destinations[i].y)

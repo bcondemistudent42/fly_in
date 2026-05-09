@@ -37,33 +37,52 @@ def main():
         or my_map[end].max_drone < my_map["nb_drones"]
     ):
         txt = "START and END must have at least "
-        raise ValueError(
-            f"{txt} {my_map['nb_drones']} max drones"
-        )
+        raise ValueError(f"{txt} {my_map['nb_drones']} max drones")
     display = Displayer(my_map, drone)
     display.reset()
     display.draw_hubs()
     pygame.display.flip()
 
     the_clock = pygame.time.Clock()
-   
 
-    my_drones = [Drone(my_map, start, display.drone_img) for x in range(my_map["nb_drones"])]
+    my_drones = [
+        Drone(my_map, start, display.drone_img)
+        for x in range(my_map["nb_drones"])
+    ]
 
     reserved = set()
     for dj_drone in my_drones:
         reserved, dj_drone.path = dijkstra_init(my_map, start, end, reserved)
-    step = max(reserved, key=lambda s: s[1])[1]
-    for _ in range(step):
-        i = 0
-        for dp_drone in my_drones:
-            dp_drone.path = sorted(dp_drone.path, key=lambda s: s[1])
-            dp_drone.next = (my_map[dp_drone.path[i][0]].x, my_map[dp_drone.path[i][0]].y)
-            display.move_drone(dp_drone.coord, dp_drone.next, the_clock)
-            dp_drone.coord = dp_drone.next
-            i += 1
 
+    # Trouver la dernière étape en vérifiant tous les chemins
+    all_steps = []
+    for drone in my_drones:
+        for hub_name, hub_step in drone.path:
+            all_steps.append(hub_step)
+    step = max(all_steps)
 
+    display.reset()
+    display.draw_hubs()
+    drones_initial_pos = [drone.coord for drone in my_drones]
+    display.display_drones(drones_initial_pos)
+    pygame.display.flip()
+    the_clock.tick(60)
+
+    for current_step in range(1, step + 1):
+        for drone in my_drones:
+            drone.path = sorted(drone.path, key=lambda s: s[1])
+            found = False
+            for hub_name, hub_step in drone.path:
+                if hub_step == current_step:
+                    drone.next = (my_map[hub_name].x, my_map[hub_name].y)
+                    found = True
+                    break
+            # Si le drone n'a pas d'entrée à cette étape, il reste sur place
+            if not found:
+                drone.next = drone.coord
+
+        # Animer tous les drones ensemble
+        display.move_drones(my_drones, the_clock)
 
     running = True
     while running:
@@ -77,7 +96,7 @@ def main():
 
 if __name__ == "__main__":
     # try:
-        main()
+    main()
 
-    # except BaseException as e:
-        # print(e)
+# except BaseException as e:
+# print(e)
