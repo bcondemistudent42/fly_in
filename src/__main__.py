@@ -12,12 +12,6 @@ os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
 import pygame  # noqa: E402
 
 
-def drone_path(my_map, display, drone, way, the_clock):
-    for elt in way:
-        display.move_drone(drone, the_clock)
-        drone.next = (my_map[elt].x, my_map[elt].y)
-        display.move_drone(drone, the_clock)
-
 def main():
 
     parser = argparse.ArgumentParser(
@@ -54,15 +48,20 @@ def main():
     the_clock = pygame.time.Clock()
    
 
-    my_drones = [Drone(my_map, start) for x in range(my_map["nb_drones"])]
+    my_drones = [Drone(my_map, start, display.drone_img) for x in range(my_map["nb_drones"])]
 
     reserved = set()
-    for drone in my_drones:
-        reserved, drone.path = dijkstra_init(my_map, start, end, reserved)
-        print(drone.path)
-
-    # for elt in my_drones:
-        # drone_path(my_map, display, elt, drone.path, the_clock)
+    for dj_drone in my_drones:
+        reserved, dj_drone.path = dijkstra_init(my_map, start, end, reserved)
+    step = max(reserved, key=lambda s: s[1])[1]
+    for _ in range(step):
+        i = 0
+        for dp_drone in my_drones:
+            dp_drone.path = sorted(dp_drone.path, key=lambda s: s[1])
+            dp_drone.next = (my_map[dp_drone.path[i][0]].x, my_map[dp_drone.path[i][0]].y)
+            display.move_drone(dp_drone.coord, dp_drone.next, the_clock)
+            dp_drone.coord = dp_drone.next
+            i += 1
 
 
 
@@ -79,5 +78,6 @@ def main():
 if __name__ == "__main__":
     # try:
         main()
+
     # except BaseException as e:
         # print(e)

@@ -25,10 +25,11 @@ class Displayer:
         y_max = max([x.y for x in self.my_map.values() if isinstance(x, Hubs)])
         y_min = min([x.y for x in self.my_map.values() if isinstance(x, Hubs)])
 
-        self.drone = pygame.transform.scale(
+        self.drone_img = pygame.transform.scale(
             pygame.image.load("visual_drones/" + drone_img).convert_alpha(),
             (45, 45),
         )
+        self.drones = []
 
         self.math_utils(x_max, x_min, y_max, y_min)
         for elt in my_map.values():
@@ -103,11 +104,14 @@ class Displayer:
     def display_drone(self, my_x, my_y):
         self.reset()
         self.draw_hubs()
-        self.screen.blit(self.drone, (my_x, my_y))
+        # add self . draw drones
+        # finir affichage
+        # gerer les cas links capacity aussi
+        self.screen.blit(self.drone_img, (my_x, my_y))
 
-    def move_drone(self, my_drone, the_clock):
-        start = pygame.Vector2(my_drone.coord)
-        end = pygame.Vector2(my_drone.next)
+    def move_drone(self, arg_start, arg_end, the_clock):
+        start = pygame.Vector2(arg_start)
+        end = pygame.Vector2(arg_end)
         pos = pygame.Vector2(start)
 
         distance_totale = start.distance_to(end)
@@ -122,6 +126,5 @@ class Displayer:
                 pygame.display.flip()
                 the_clock.tick(60)
 
-        my_drone.coord = (end.x, end.y)
         self.display_drone(end.x, end.y)
         pygame.display.flip()

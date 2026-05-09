@@ -20,7 +20,6 @@ def dijkstra_init(map, start, end, reserved):
     work_hub = (work_hub, 0)
 
     available = []
-    print("reserved ==", reserved)
     t = 1
     while work_hub[0].name is not end:
         work_hub[0].visited = True
@@ -51,8 +50,6 @@ def dijkstra_init(map, start, end, reserved):
    #to add a while until start == None
     # then add each node if available depending time
     # print(output)
-    print()
-    print()
     reserv_table = do_reservation(work_hub, start, reserved, available, end)
     drone_path = do_path(work_hub, start)
     # print(reserv_table)
