@@ -1,0 +1,87 @@
+from .parsing.parsing_class import Hubs
+
+
+class Dijkstra_Node:
+    def __init__(self, name, cost, adjacent_hubs):
+        self.visited = False
+        self.name = name
+        self.true_cost = cost
+        self.relative_cost = float("inf")
+        self.origin = None
+        self.links = adjacent_hubs
+        self.time = 0
+
+
+def dijkstra_init(map, start, end, reserved):
+
+    work_hub = Dijkstra_Node(map[start].name, map[start].cost, map[start].links["links"])
+    work_hub.visited = True
+    work_hub.relative_cost = 0
+    work_hub.true_cost = 0
+    work_hub = work_hub
+
+    available = []
+    full_node = {}
+    full_node[start] = work_hub
+    while work_hub.name is not end:
+        print(work_hub.name)
+        work_hub.visited = True
+        for elt in work_hub.links:
+            if elt not in full_node.keys():
+                full_node[elt] = Dijkstra_Node(map[elt].name, map[elt].cost, map[elt].links["links"])
+            if (full_node[elt].relative_cost > work_hub.relative_cost + full_node[elt].true_cost):
+                full_node[elt].relative_cost = (
+                    work_hub.relative_cost + full_node[elt].true_cost
+                )
+                if full_node[elt].origin is not None:
+                    full_node[elt].time = full_node[elt].origin.time + 1
+                full_node[elt].origin = work_hub
+                available.append(full_node[elt])
+        check = [x for x in available if x.origin is not None and x.visited is False] #and reserved.count((x.name, x.time)) < map[x.name].max_drone]
+        if (len(check) == 0):
+            work_hub.relative_cost += 1
+            check.append(work_hub)
+        work_hub = min(
+            [ x for x in check],
+            key=lambda s: s.relative_cost,
+        )
+
+   #to add a while until start == None
+    # then add each node if available depending time
+    # print(output)
+    reserv_table = do_reservation(work_hub, start, reserved, available, end)
+    drone_path = do_path(work_hub, start)
+    print(reserv_table)
+    return reserv_table, drone_path 
+
+
+def do_path(work_hub, start):
+    output = []
+    while (work_hub.name != start):
+        output.append((work_hub.name, work_hub.time))
+        work_hub = work_hub.origin
+        # print(work_hub)
+    # print(output)
+    return output
+
+
+
+
+def do_reservation(work_hub, start, reserved, available, end):
+    while work_hub.name != start:
+        work_hub = work_hub.origin
+        reserved.append(tuple((work_hub.name, work_hub.time)))
+    return reserved
+
+
+
+
+
+
+
+@dataclass
+class WorkHub:
+    hub: Hubs
+    timestamp: int
+
+# WorkHub(work_hub, 0)

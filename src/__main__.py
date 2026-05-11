@@ -19,7 +19,7 @@ def main():
     )
     parser.add_argument(
         "--drone",
-        default="drone.png",
+        default="bitcoin.png",
         required=False,
         help="Change the representation of the drones with a picture",
     )
