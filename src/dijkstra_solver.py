@@ -34,13 +34,12 @@ def dijkstra_init(map, start, end, reserved):
                 )
                 current.origin = (work_hub, t)
                 available.append((current, t))
-        check = [x for x in available if x[0].origin is not None and x[0].visited is False and (x[0].name, x[1]) not in reserved]#add for next t of x is not at max usage
-        # check1 = [ (x[0].name, x[1]) for x in available if x[0].origin is not None and x[0].visited is False and (x[0].name, x[1]) not in reserved]#add for next t of x is not at max usage
-        # print(check1)
-        if (len(check) == 0): #to do here the choice of node depending on the time
-            work_hub[0].relative_cost += 1 # must allow to stay on itself node len is 0
+        check = [x for x in available if x[0].origin is not None and x[0].visited is False and reserved.count((x[0].name, x[1])) < map[x[0].name].max_drone and reserved.count((x[0].name, x[1])) < map[x[0].name].links["max_links"]]
+        check1 = [(x[0].name,reserved.count((x[0].name, x[1])), map[x[0].name].links["max_links"]) for x in available if x[0].origin is not None and x[0].visited is False and reserved.count((x[0].name, x[1])) < map[x[0].name].max_drone and reserved.count((x[0].name, x[1])) < map[x[0].name].links["max_links"]]
+        print(check1)
+        if (len(check) == 0):
+            work_hub[0].relative_cost += 1
             check.append(work_hub)
-            # print("giga caca", work_hub[0].name)
         work_hub = min(
             [ x for x in check],
             key=lambda s: s[0].relative_cost,
@@ -71,8 +70,5 @@ def do_path(work_hub, start):
 def do_reservation(work_hub, start, reserved, available, end):
     while work_hub[0].name != start:
         work_hub = work_hub[0].origin[0]
-        reserved.add(tuple((work_hub[0].name, work_hub[1])))
+        reserved.append(tuple((work_hub[0].name, work_hub[1])))
     return reserved
-
-# to do the function to return way and unpack
-# in main, 

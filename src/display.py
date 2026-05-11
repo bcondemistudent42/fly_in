@@ -101,47 +101,16 @@ class Displayer:
             except ValueError:
                 raise ValueError(f"This is not a color: '{elt.color}'")
 
-    def display_drone(self, my_x, my_y):
-        self.reset()
-        self.draw_hubs()
-        # add self . draw drones
-        # finir affichage
-        # gerer les cas links capacity aussi
-        self.screen.blit(self.drone_img, (my_x, my_y))
-
     def display_drones(self, drones_positions):
-        """Affiche tous les drones sur l'écran"""
         self.reset()
         self.draw_hubs()
         for pos in drones_positions:
             self.screen.blit(self.drone_img, (pos[0], pos[1]))
 
-    def move_drone(self, arg_start, arg_end, the_clock):
-        start = pygame.Vector2(arg_start)
-        end = pygame.Vector2(arg_end)
-        pos = pygame.Vector2(start)
-
-        distance_totale = start.distance_to(end)
-        if distance_totale > 0:
-            direction = (end - start).normalize()
-            vitesse = 3
-
-            while pos.distance_to(end) > vitesse:
-                pos += direction * vitesse
-
-                self.display_drone(pos.x, pos.y)
-                pygame.display.flip()
-                the_clock.tick(60)
-
-        self.display_drone(end.x, end.y)
-        pygame.display.flip()
-
     def move_drones(self, drones, the_clock):
-        """Anime tous les drones simultanément d'une étape à l'autre"""
         positions = [pygame.Vector2(drone.coord) for drone in drones]
         destinations = [pygame.Vector2(drone.next) for drone in drones]
 
-        # Calculer les distances et directions
         distances = [
             positions[i].distance_to(destinations[i])
             for i in range(len(drones))
@@ -153,7 +122,7 @@ class Displayer:
             else:
                 directions.append(pygame.Vector2(0, 0))
 
-        vitesse = 3
+        vitesse = 4
         while (
             max(
                 pos.distance_to(dest)
@@ -165,15 +134,12 @@ class Displayer:
                 if positions[i].distance_to(destinations[i]) > vitesse:
                     positions[i] += directions[i] * vitesse
 
-            # Afficher tous les drones
             self.display_drones([pos for pos in positions])
             pygame.display.flip()
             the_clock.tick(60)
 
-        # Affichage final à la destination
         self.display_drones([dest for dest in destinations])
         pygame.display.flip()
 
-        # Mettre à jour les coordonnées des drones
         for i, drone in enumerate(drones):
             drone.coord = (destinations[i].x, destinations[i].y)

@@ -50,18 +50,17 @@ def main():
         for x in range(my_map["nb_drones"])
     ]
 
-    reserved = set()
+    reserved = []
     for dj_drone in my_drones:
         reserved, dj_drone.path = dijkstra_init(my_map, start, end, reserved)
 
-    # Trouver la dernière étape en vérifiant tous les chemins
     all_steps = []
     for drone in my_drones:
         for hub_name, hub_step in drone.path:
             all_steps.append(hub_step)
     step = max(all_steps)
 
-    display.reset()
+    display.reset() # to do a function display to clean main
     display.draw_hubs()
     drones_initial_pos = [drone.coord for drone in my_drones]
     display.display_drones(drones_initial_pos)
@@ -77,11 +76,9 @@ def main():
                     drone.next = (my_map[hub_name].x, my_map[hub_name].y)
                     found = True
                     break
-            # Si le drone n'a pas d'entrée à cette étape, il reste sur place
             if not found:
                 drone.next = drone.coord
 
-        # Animer tous les drones ensemble
         display.move_drones(my_drones, the_clock)
 
     running = True
@@ -100,3 +97,9 @@ if __name__ == "__main__":
 
 # except BaseException as e:
 # print(e)
+
+
+# URGENT GERER LEX MAX LINKS PROPREMENT
+
+# to handle when fisrt connection after start have max drone at 0
+# to handle when max_links < max_capacity dron still goiing but should not
