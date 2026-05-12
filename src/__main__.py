@@ -56,10 +56,6 @@ def main():
         for x in range(my_map["nb_drones"])
     ]
 
-    reserved = []
-    for dj_drone in my_drones:
-        reserved, dj_drone.path = dijkstra_init(my_map, start, end, reserved)
-
     all_steps = []
     for drone in my_drones:
         for hub_name, hub_step in drone.path:
