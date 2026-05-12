@@ -1,7 +1,5 @@
 from dataclasses import dataclass
-
-
-
+from .parsing.parsing_class import Hubs
 
 # WorkHub(work_hub, 0)
 
@@ -22,31 +20,34 @@ class WorkHub:
 
 def dijkstra_init(map, start, end, reserved):
 
-    work_hub = WorkHub(Dijkstra_Node(map[start].name, map[start].cost, map[start].links["links"]), 0)
-    work_hub.hub.visited = True
-    work_hub.hub.relative_cost = 0
-    work_hub.hub.true_cost = 0
-
-    print()
-    print()
     print("reserved ==", reserved)
-
     available = []
-    while work_hub.hub.name is not end:
+    nodes = {
+    hub.name: Dijkstra_Node(hub.name, hub.cost, hub.links["links"])
+        for hub in map.values()
+            if isinstance(hub, Hubs)
+    }
+
+    nodes[start].visited = True
+    nodes[start].relative_cost = 0
+    nodes[start].true_cost = 0
+
+    work_hub = WorkHub(nodes[start], 0)
+
+    while work_hub.hub.name != end:
         work_hub.hub.visited = True
+        right_time = work_hub.time + 1
         for elt in work_hub.hub.links:
-            current = Dijkstra_Node(
-                map[elt].name, map[elt].cost, map[elt].links["links"]
-            )
+            current = nodes[elt]
             if (
                 current.relative_cost
-                > work_hub.hub.relative_cost + current.true_cost and work_hub.hub.name != start
+                > work_hub.hub.relative_cost + current.true_cost
             ):
                 current.relative_cost = (
                     work_hub.hub.relative_cost + current.true_cost
                 )
-            current.origin = WorkHub(work_hub.hub, work_hub.time + 1)
-            available.append(WorkHub(current, work_hub.time + 1))
+                current.origin = WorkHub(work_hub.hub, right_time)
+            available.append(WorkHub(current, right_time))
         check = [
             x
             for x in available
@@ -56,15 +57,6 @@ def dijkstra_init(map, start, end, reserved):
             # and reserved.count((x[0].name, x[1]))
             # < map[x[0].name].links["max_links"]
         ]
-        # check1 = [
-        # reserved.count((x.hub.name, x.time + 1))
-        # for x in available
-        # if x.hub.origin is not None
-        # and x.hub.visited is False
-        # and reserved.count((x[0].name, x[1]))
-        # < map[x[0].name].links["max_links"]
-        # ]
-        # print(check1)
         if len(check) == 0:
             work_hub.hub.relative_cost += 1
             work_hub.time += 1
@@ -75,14 +67,12 @@ def dijkstra_init(map, start, end, reserved):
         )
 
     work_hub.time += 1
-    # to add a while until start == None
-    # then add each node if available depending time
-    # print(output)
+
     reserv_table = do_reservation(work_hub, start, end, reserved)
     drone_path = do_path(work_hub, start)
     print(drone_path)
-    # print("reserv table ==", reserv_table)
-    # print()
+    print()
+    print()
     return reserv_table, drone_path
 
 

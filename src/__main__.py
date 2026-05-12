@@ -31,6 +31,12 @@ def main():
 
     choosen_map = test_maps()
     my_map = make_displayable(choosen_map)
+
+    from .parsing.parsing_class import Hubs
+    # hubs = [x for x in my_map.values() if isinstance(x, Hubs)]
+    # for elt in hubs:
+        # print(elt.name, elt.links)
+
     start, end = find_start_end(my_map)
     if (
         my_map[start].max_drone < my_map["nb_drones"]
@@ -93,10 +99,9 @@ def main():
 
 if __name__ == "__main__":
     # try:
-    main()
-
-# except BaseException as e:
-# print(e)
+        main()
+    # except BaseException as e:
+        # print(e)
 
 
 # URGENT GERER LEX MAX LINKS PROPREMENT

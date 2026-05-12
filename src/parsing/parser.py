@@ -36,7 +36,7 @@ def map_valid(my_map):
     start_name = ""
     end_name = ""
     my_hubs["hubs_links"] = []
-    format_err = "Format Error: Must respect pattern 'nb_drones: int'"
+    format_err = "Format Error: Must respect pattern 'key: value'"
 
     try:
         with open("maps/" + my_map) as f:
@@ -51,14 +51,18 @@ def map_valid(my_map):
                     elif i == 0:
                         try:
                             temp = line.split(":")
-                            int(temp[1])
                             if len(temp) != 2:
                                 raise ValueError
                         except Exception:
+                            print("cacac")
                             raise ValueError(f"{format_err}, ")
                         if temp[0] != "nb_drones":
-                            raise ValueError(format_err)
+                            raise ValueError("First line must be 'nb_drones'")
                         else:
+                            try:
+                                int(temp[1])
+                            except ValueError:
+                                raise ValueError("NB_DRONES MUST BE INT")
                             my_hubs["nb_drones"] = int(temp[1])
                     else:
                         key = line.split(":")
@@ -135,7 +139,7 @@ def map_valid(my_map):
                                 value = 1
                             else:
                                 if meta[0][0] != "[" or meta[-1][-1] != "]":
-                                    raise ValueError("Wrong Metadata Format")
+                                    raise ValueError("Bad Format,")
                                 value = check_metadata_connection(str(meta))
                             my_hubs["hubs_links"].append(
                                 ((key[1].split()[0].strip(), value))
