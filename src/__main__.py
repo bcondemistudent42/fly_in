@@ -1,4 +1,3 @@
-from .dijkstra_solver import dijkstra_init
 from .display import Displayer
 from .drone import Drone
 from .parsing.parser import make_displayable
@@ -11,6 +10,19 @@ os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
 
 import pygame  # noqa: E402
 
+from dataclasses import dataclass
+
+@dataclass
+class WorkHub:
+    hub_1: str
+    hub_2: str
+    max: int
+
+
+
+
+
+# def assign_connections_cost()
 
 def main():
 
@@ -33,9 +45,17 @@ def main():
     my_map = make_displayable(choosen_map)
 
     from .parsing.parsing_class import Hubs
-    # hubs = [x for x in my_map.values() if isinstance(x, Hubs)]
-    # for elt in hubs:
-        # print(elt.name, elt.links)
+    # print(my_map)
+    hubs = None
+    for elt in my_map.values():
+        if isinstance(elt, list):
+            hubs = [x for x in elt if isinstance(x, tuple)]
+            
+    if hubs is not None:
+        print(hubs)
+    print()
+    print()
+
 
     start, end = find_start_end(my_map)
     if (
@@ -60,37 +80,37 @@ def main():
     for drone in my_drones:
         for hub_name, hub_step in drone.path:
             all_steps.append(hub_step)
-    step = max(all_steps)
+    # step = max(all_steps)
 
-    display.reset() # to do a function display to clean main
-    display.draw_hubs()
-    drones_initial_pos = [drone.coord for drone in my_drones]
-    display.display_drones(drones_initial_pos)
-    pygame.display.flip()
-    the_clock.tick(60)
+    # display.reset() # to do a function display to clean main
+    # display.draw_hubs()
+    # drones_initial_pos = [drone.coord for drone in my_drones]
+    # display.display_drones(drones_initial_pos)
+    # pygame.display.flip()
+    # the_clock.tick(60)
 
-    for current_step in range(1, step + 1):
-        for drone in my_drones:
-            drone.path = sorted(drone.path, key=lambda s: s[1])
-            found = False
-            for hub_name, hub_step in drone.path:
-                if hub_step == current_step:
-                    drone.next = (my_map[hub_name].x, my_map[hub_name].y)
-                    found = True
-                    break
-            if not found:
-                drone.next = drone.coord
+    # for current_step in range(1, step + 1):
+    #     for drone in my_drones:
+    #         drone.path = sorted(drone.path, key=lambda s: s[1])
+    #         found = False
+    #         for hub_name, hub_step in drone.path:
+    #             if hub_step == current_step:
+    #                 drone.next = (my_map[hub_name].x, my_map[hub_name].y)
+    #                 found = True
+    #                 break
+    #         if not found:
+    #             drone.next = drone.coord
 
-        display.move_drones(my_drones, the_clock)
+    #     display.move_drones(my_drones, the_clock)
 
-    running = True
-    while running:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_q:
-                    running = False
+    # running = True
+    # while running:
+    #     for event in pygame.event.get():
+    #         if event.type == pygame.QUIT:
+    #             running = False
+    #         if event.type == pygame.KEYDOWN:
+    #             if event.key == pygame.K_q:
+    #                 running = False
 
 
 if __name__ == "__main__":
