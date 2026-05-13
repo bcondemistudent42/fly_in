@@ -1,22 +1,27 @@
+import argparse
+import os
+
 from .display import Displayer
 from .drone import Drone
 from .parsing.parser import make_displayable
 from .utils_main import find_start_end, test_maps
 
-import os
-import argparse
-
 os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
+
+
+from dataclasses import dataclass
 
 import pygame  # noqa: E402
 
-from dataclasses import dataclass
+from .dijkstra_solver import Connection
+
 
 @dataclass
 class WorkHub:
     hub_1: str
     hub_2: str
     max: int
+
 
 
 
@@ -44,19 +49,6 @@ def main():
     choosen_map = test_maps()
     my_map = make_displayable(choosen_map)
 
-    from .parsing.parsing_class import Hubs
-    # print(my_map)
-    hubs = None
-    for elt in my_map.values():
-        if isinstance(elt, list):
-            hubs = [x for x in elt if isinstance(x, tuple)]
-            
-    if hubs is not None:
-        print(hubs)
-    print()
-    print()
-
-
     start, end = find_start_end(my_map)
     if (
         my_map[start].max_drone < my_map["nb_drones"]
@@ -64,22 +56,73 @@ def main():
     ):
         txt = "START and END must have at least "
         raise ValueError(f"{txt} {my_map['nb_drones']} max drones")
-    display = Displayer(my_map, drone)
-    display.reset()
-    display.draw_hubs()
-    pygame.display.flip()
+    
 
-    the_clock = pygame.time.Clock()
 
-    my_drones = [
-        Drone(my_map, start, display.drone_img)
-        for x in range(my_map["nb_drones"])
-    ]
 
-    all_steps = []
-    for drone in my_drones:
-        for hub_name, hub_step in drone.path:
-            all_steps.append(hub_step)
+    from .dijkstra_solver import convert_to_connection
+    connections = convert_to_connection(my_map)
+
+    start, end = find_start_end(my_map)
+    #making links weight correctly for dijkstra to put in function later
+    from .parsing.parsing_class import Hubs
+    for elt in my_map.values():
+        if isinstance(elt, Hubs):
+            for weight_hub in connections:
+                if weight_hub.hub_1 == elt.name:
+                    elt.links["weight"].append((weight_hub.capacity, weight_hub.hub_2))
+                elif weight_hub.hub_2 == elt.name:
+                    elt.links["weight"].append((weight_hub.capacity, weight_hub.hub_1))
+
+
+    from .dijkstra_solver import Graph
+    g = Graph()
+    g.dijkstra_init(my_map, start, end)
+    print(g.shortest_distances())
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    # display = Displayer(my_map, drone)
+    # display.reset()
+    # display.draw_hubs()
+    # pygame.display.flip()
+
+    # my_drones = [
+        # Drone(my_map, start, display.drone_img)
+        # for x in range(my_map["nb_drones"])
+    # ]
+
+    # all_steps = []
+    # for drone in my_drones:
+        # for hub_name, hub_step in drone.path:
+            # all_steps.append(hub_step)
     # step = max(all_steps)
 
     # display.reset() # to do a function display to clean main

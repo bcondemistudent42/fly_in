@@ -38,6 +38,7 @@ class Hubs:
         self.links = {}
         self.links["max_links"] = 1
         self.links["links"] = []
+        self.links["weight"] = []
 
         self.start, self.end = check
         if max_capacity is None:
