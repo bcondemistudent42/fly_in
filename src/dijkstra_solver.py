@@ -18,6 +18,10 @@ class Graph:
     def __init__(self, graph: dict = {}):
         self.graph = graph
         self.solutions = [] #a list of all solutions for each drone different pathway 
+        # Start with the reservation table
+        # to see how to do the reservation table
+        # to see max hub capacity
+        # to see max link capacity
 
     def shortest_distances(self):
         distances = {node: NodeData(float("inf"), None) for node in self.graph}
@@ -60,50 +64,38 @@ class Graph:
         self.start = start
         self.end = end
 
-    # def get_pathway(self, distance):
-    #     goal = distance[self.end]
-    #     path = []
-
-    #     path.append(self.end)
-    #     while goal.origin is not None:
-    #         path.append(str(goal).split("origin='")[1].replace("')", "").strip())
-    #         goal = distance[goal.origin]
-    #     path = path[::-1]
-    #     return path
-
-    def get_pathway_clean(self, distance):
+    def get_pathway(self, distance):
+        goal = self.end
         path = []
-        visited = set()
-        max_steps = len(self.graph) + 1
-        step_count = 0
-        
-        current_node = self.end
-        
-        # Traverse backward from end to start
-        while current_node is not None:
-            # Detect cycles
-            if current_node in visited:
-                raise ValueError(f"Cycle detected in path at node '{current_node}'")
-            
-            # Detect infinite loops
-            if step_count > max_steps:
-                raise ValueError(f"Path reconstruction exceeded max steps ({max_steps})")
-            
-            visited.add(current_node)
-            path.append(current_node)
-            
-            # Move to previous node
-            current_node = distance[current_node].origin
-            step_count += 1
-        
-        # Verify we reached the start
-        if path[-1] != self.start:
-            raise ValueError(f"Path does not reach start node '{self.start}'")
-        
-        # Reverse to get start -> end order
-        path.reverse()
-        
+
+        while goal is not None:
+            path.append(goal)
+            goal = distance[goal].origin
+        path = path[::-1]
         return path
+
+    # def get_pathway_clean(self, distance): to see for more
+    #     path = []
+    #     visited = set()
+    #     max_steps = len(self.graph) + 1
+    #     step_count = 0
+        
+    #     current_node = self.end
+
+    #     while current_node is not None:
+    #         if current_node in visited:
+    #             raise ValueError(f"Cycle detected in path at node '{current_node}'")
+    #         if step_count > max_steps:
+    #             raise ValueError(f"Path reconstruction exceeded max steps ({max_steps})")
+            
+    #         visited.add(current_node)
+    #         path.append(current_node)
+    #         current_node = distance[current_node].origin
+    #         step_count += 1
+    #     if path[-1] != self.start:
+    #         raise ValueError(f"Path does not reach start node '{self.start}'")
+    #     path.reverse()
+    #     return path
 
 
 def convert_to_connection(my_map):

@@ -80,7 +80,7 @@ def main():
     g = Graph()
     g.dijkstra_init(my_map, start, end)
     ditances = g.shortest_distances()
-    path = g.get_pathway_clean(ditances)
+    path = g.get_pathway(ditances)
 
     display = Displayer(my_map, drone)
     display.reset()
