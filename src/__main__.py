@@ -8,6 +8,7 @@ from .utils_main import find_start_end, test_maps
 
 os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
 
+import time
 
 from dataclasses import dataclass
 
@@ -79,82 +80,50 @@ def main():
     g = Graph()
     g.dijkstra_init(my_map, start, end)
     ditances = g.shortest_distances()
-    print(g.get_pathway(ditances))
+    path = g.get_pathway_clean(ditances)
 
+    display = Displayer(my_map, drone)
+    display.reset()
+    display.draw_hubs()
+    pygame.display.flip()
 
+    my_drones = [
+        Drone(my_map, start, display.drone_img)
+        for x in range(my_map["nb_drones"])
+    ]
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    # display = Displayer(my_map, drone)
-    # display.reset()
-    # display.draw_hubs()
-    # pygame.display.flip()
-
-    # my_drones = [
-        # Drone(my_map, start, display.drone_img)
-        # for x in range(my_map["nb_drones"])
-    # ]
-
-    # all_steps = []
-    # for drone in my_drones:
-        # for hub_name, hub_step in drone.path:
-            # all_steps.append(hub_step)
-    # step = max(all_steps)
-
-    # display.reset() # to do a function display to clean main
-    # display.draw_hubs()
-    # drones_initial_pos = [drone.coord for drone in my_drones]
-    # display.display_drones(drones_initial_pos)
-    # pygame.display.flip()
-    # the_clock.tick(60)
-
-    # for current_step in range(1, step + 1):
-    #     for drone in my_drones:
-    #         drone.path = sorted(drone.path, key=lambda s: s[1])
-    #         found = False
-    #         for hub_name, hub_step in drone.path:
-    #             if hub_step == current_step:
-    #                 drone.next = (my_map[hub_name].x, my_map[hub_name].y)
-    #                 found = True
-    #                 break
-    #         if not found:
-    #             drone.next = drone.coord
-
-    #     display.move_drones(my_drones, the_clock)
-
-    # running = True
-    # while running:
-    #     for event in pygame.event.get():
-    #         if event.type == pygame.QUIT:
-    #             running = False
-    #         if event.type == pygame.KEYDOWN:
-    #             if event.key == pygame.K_q:
-    #                 running = False
+    # Assign path to first drone
+    my_drones[0].path = path
+    
+    # Set initial drone positions for movement
+    for i, hub_name in enumerate(my_drones[0].path[:-1]):
+        my_drones[0].next = (my_map[my_drones[0].path[i + 1]].x, my_map[my_drones[0].path[i + 1]].y)
+    
+    the_clock = pygame.time.Clock()
+    
+    running = True
+    path_index = 0
+    
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_q:
+                    running = False
+        
+        # Move drone through each hub on its path
+        if path_index < len(my_drones[0].path) - 1:
+            my_drones[0].next = (
+                my_map[my_drones[0].path[path_index + 1]].x,
+                my_map[my_drones[0].path[path_index + 1]].y
+            )
+            display.move_drones([my_drones[0]], the_clock)
+            path_index += 1
+        else:
+            # Affichage final une fois arrivé
+            display.display_drones([drone.coord for drone in my_drones])
+            pygame.display.flip()
 
 
 if __name__ == "__main__":
