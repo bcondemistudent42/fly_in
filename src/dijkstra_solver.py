@@ -38,8 +38,10 @@ class Graph:
         while pq:
             current_distance, current_node = heappop(pq)
 
-            if current_node in visited: #to add here later the available and capacity
+            if current_node in visited : #to add here later the available and capacity
                 continue
+            # if self.reserved.count((current_node, current_node.time + 1)) < to do a function check 
+            # with my map and max capacity of xurrent node to see if bigger than it's value or no
             visited.add(current_node)
 
             for neighbor, weight in self.graph[current_node].items():
@@ -81,13 +83,12 @@ class Graph:
 
     def do_reservation(self, distance):
         work_hub = self.end
-        reservation = []
 
         while work_hub is not None:
-            reservation.append((work_hub, distance[work_hub].time))
+            self.reserved.append((work_hub, distance[work_hub].time))
             work_hub = distance[work_hub].origin
-        reservation = reservation[::-1]
-        return reservation
+        print(self.reserved)
+
 
 
     # def get_pathway_clean(self, distance): to see for more
