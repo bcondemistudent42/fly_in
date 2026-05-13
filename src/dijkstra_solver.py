@@ -9,7 +9,6 @@ class Connection:
     hub_2: str
     capacity: int
 
-
 @dataclass
 class NodeData:
     cost: int | float
@@ -18,6 +17,7 @@ class NodeData:
 class Graph:
     def __init__(self, graph: dict = {}):
         self.graph = graph
+        self.solutions = [] #a list of all solutions for each drone different pathway 
 
     def shortest_distances(self):
         distances = {node: NodeData(float("inf"), None) for node in self.graph}
@@ -60,15 +60,16 @@ class Graph:
         self.start = start
         self.end = end
 
+    def get_pathway(self, distance):
+        goal = distance[self.end]
+        path = []
 
-# {'A': {'B': 3, 'C': 3},
-# 'B': {'A': 3, 'D': 3.5, 'E': 2.8},
-# 'C': {'A': 3, 'E': 2.8, 'F': 3.5},
-# 'D': {'B': 3.5, 'E': 3.1, 'G': 10},
-# 'E': {'B': 2.8, 'C': 2.8, 'D': 3.1, 'G': 7},
-# 'F': {'G': 2.5, 'C': 3.5},
-# 'G': {'F': 2.5, 'E': 7, 'D': 10}}
-# 
+        path.append(self.end)
+        while goal.origin is not None:
+            path.append(str(goal).split("origin='")[1].replace("')", "").strip())
+            goal = distance[goal.origin]
+        path = path[::-1]
+        return path
 
 
 def convert_to_connection(my_map):

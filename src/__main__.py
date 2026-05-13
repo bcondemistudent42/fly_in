@@ -78,7 +78,8 @@ def main():
     from .dijkstra_solver import Graph
     g = Graph()
     g.dijkstra_init(my_map, start, end)
-    print(g.shortest_distances())
+    ditances = g.shortest_distances()
+    print(g.get_pathway(ditances))
 
 
 
