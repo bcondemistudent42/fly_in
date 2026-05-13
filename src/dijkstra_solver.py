@@ -13,19 +13,22 @@ class Connection:
 class NodeData:
     cost: int | float
     origin: str | None
+    time: int | float
 
 class Graph:
     def __init__(self, graph: dict = {}):
         self.graph = graph
-        self.solutions = [] #a list of all solutions for each drone different pathway 
+        self.solutions = [] #a list of all solutions for each drone different pathway
+        self.reserved = []
         # Start with the reservation table
         # to see how to do the reservation table
         # to see max hub capacity
         # to see max link capacity
 
     def shortest_distances(self):
-        distances = {node: NodeData(float("inf"), None) for node in self.graph}
-        distances[self.start] = NodeData(0, None)
+        distances = {node: NodeData(float("inf"), None, float("inf")) for node in self.graph}
+        # to see if it's good to put float("inf") as time default value
+        distances[self.start] = NodeData(0, None, 0)
 
         pq = [(0, self.start)]
         heapify(pq)
@@ -44,6 +47,7 @@ class Graph:
                 if next_node_distance < distances[neighbor].cost:
                     distances[neighbor].cost = next_node_distance
                     distances[neighbor].origin = current_node
+                    distances[neighbor].time = distances[current_node].time + 1
                     heappush(pq, (next_node_distance, neighbor))
 
         if distances[self.end].origin is None:
@@ -73,6 +77,18 @@ class Graph:
             goal = distance[goal].origin
         path = path[::-1]
         return path
+
+
+    def do_reservation(self, distance):
+        work_hub = self.end
+        reservation = []
+
+        while work_hub is not None:
+            reservation.append((work_hub, distance[work_hub].time))
+            work_hub = distance[work_hub].origin
+        reservation = reservation[::-1]
+        return reservation
+
 
     # def get_pathway_clean(self, distance): to see for more
     #     path = []

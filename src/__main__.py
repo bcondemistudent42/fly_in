@@ -81,6 +81,7 @@ def main():
     g.dijkstra_init(my_map, start, end)
     ditances = g.shortest_distances()
     path = g.get_pathway(ditances)
+    g.do_reservation(ditances)
 
     display = Displayer(my_map, drone)
     display.reset()
