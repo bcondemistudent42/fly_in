@@ -10,33 +10,41 @@ class Connection:
     capacity: int
 
 
+@dataclass
+class NodeData:
+    cost: int | float
+    origin: str | None
+
 class Graph:
     def __init__(self, graph: dict = {}):
         self.graph = graph
 
     def shortest_distances(self):
-         distances = {node: float("inf") for node in self.graph}
-         distances[self.start] = 0
+        distances = {node: NodeData(float("inf"), None) for node in self.graph}
+        distances[self.start] = NodeData(0, None)
 
-         pq = [(0, self.start)]
-         heapify(pq)
+        pq = [(0, self.start)]
+        heapify(pq)
 
-         visited = set()
+        visited = set()
 
-         while pq:
-             current_distance, current_node = heappop(pq)
+        while pq:
+            current_distance, current_node = heappop(pq)
 
-             if current_node in visited: #to add here later the available and capacity
+            if current_node in visited: #to add here later the available and capacity
                 continue
-             visited.add(current_node)
+            visited.add(current_node)
 
-             for neighbor, weight in self.graph[current_node].items():
-                 next_node_distance = current_distance + weight
-                 if next_node_distance < distances[neighbor]:
-                     distances[neighbor] = next_node_distance
-                     heappush(pq, (next_node_distance, neighbor))
+            for neighbor, weight in self.graph[current_node].items():
+                next_node_distance = current_distance + weight
+                if next_node_distance < distances[neighbor].cost:
+                    distances[neighbor].cost = next_node_distance
+                    distances[neighbor].origin = current_node
+                    heappush(pq, (next_node_distance, neighbor))
 
-         return distances
+        if distances[self.end].origin is None:
+            raise ValueError("Error: Unsolvable map")
+        return distances
 
 
     def dijkstra_init(self, my_map, start, end):
