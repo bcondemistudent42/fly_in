@@ -39,11 +39,11 @@ def main():
 
     g = Graph(my_map)
     g.dijkstra_init(my_map, start, end)
+    distances = []
     for elt in drones:
-        distances = g.shortest_distances()
         g.do_reservation(distances)
-        elt.path = g.get_pathway(distances)
-    for elt in drones:
+        distances, path = g.shortest_distances()
+        elt.path = path
         print(elt.path)
 
 

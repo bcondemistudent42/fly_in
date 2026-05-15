@@ -25,7 +25,7 @@ class Graph:
         # to see max hub capacity
         # to see max link capacity
 
-    def check_available_time(self, current_node, distances):
+    def is_available(self, current_node, distances):
         check_tuple = (current_node, distances[current_node].time)
         # print(check_tuple)
         # print(self.reserved)
@@ -34,7 +34,17 @@ class Graph:
             return True
         return False
 
+    def all_unavailable(self, lst_neighbor, distances):
+        check = []
+        for elt in lst_neighbor:
+            check.append(self.is_available(elt, distances))
+        if check.count(False) == len(check):
+            return True
+        return False
+
+
     def shortest_distances(self):
+        # print(f"reserved =={self.reserved}")
         distances = {node: NodeData(float("inf"), None, float("inf")) for node in self.graph}
         # to see if it's good to put float("inf") as time default value
         distances[self.start] = NodeData(0, None, 0)
@@ -47,27 +57,50 @@ class Graph:
         while pq:
             current_distance, current_node = heappop(pq)
 
-            if current_node in visited:
+            if (current_node, distances[current_node].time) in visited:
                 continue
-            visited.add(current_node)
+            visited.add((current_node, distances[current_node].time))
 
 
             # print(self.check_available_time(current_node, distances))
-            if not self.check_available_time(current_node, distances):
-                distances[current_node].time += 1
-                heappush(pq, (current_distance + 1, current_node))
+            # if self.check_available_time(current_node, distances) is False:
+            #     distances[current_node].time += 1
+            #     heappush(pq, (current_distance + 1, current_node))
 
+            lst_neighbor = []
             for neighbor, weight in self.graph[current_node].items():
+                lst_neighbor.append(neighbor)
+
                 next_node_distance = current_distance + weight
+
+                temp_cost = distances[neighbor].cost
+                temp_origin = distances[neighbor].origin
+                temp_time = distances[neighbor].time
+
                 if next_node_distance < distances[neighbor].cost:
                     distances[neighbor].cost = next_node_distance
                     distances[neighbor].origin = current_node
                     distances[neighbor].time = distances[current_node].time + 1
-                    heappush(pq, (next_node_distance, neighbor))
+
+                    # reset node function with value before the assignation
+                    if self.is_available(neighbor, distances) is False:
+                        distances[neighbor].cost = temp_cost
+                        distances[neighbor].origin = temp_origin
+                        distances[neighbor].time = temp_time + 1
+                        
+                        distances[current_node].time += 1
+                        heappush(pq, (current_distance + 1, current_node))
+                        
+                        continue
+                    if len(pq) == 0 and self.all_unavailable(lst_neighbor, distances):
+                        distances[current_node].time += 1
+                        heappush(pq, (current_distance + 1, current_node))
+                    else:
+                        heappush(pq, (next_node_distance, neighbor))
 
         if distances[self.end].origin is None:
             raise ValueError("Error: Unsolvable map")
-        return distances
+        return distances, self.get_pathway(distances)
 
 
     def dijkstra_init(self, my_map, start, end):
@@ -96,7 +129,8 @@ class Graph:
 
     def do_reservation(self, distance):
         work_hub = self.end
-
+        if len(distance) == 0:
+            return
         while work_hub is not None:
             self.reserved.append((work_hub, distance[work_hub].time))
             work_hub = distance[work_hub].origin
