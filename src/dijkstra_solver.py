@@ -25,11 +25,14 @@ class Graph:
         # to see max hub capacity
         # to see max link capacity
 
-    def check_not_reserved(self, current_node):
-        check_tuple = (current_node, current_node.time + 1)
+    def check_available_time(self, current_node, distances):
+        check_tuple = (current_node, distances[current_node].time)
+        # print(check_tuple)
+        # print(self.reserved)
+        # print()
         if self.reserved.count(check_tuple) < self.my_map[current_node].max_drone:
-            return False
-        return True
+            return True
+        return False
 
     def shortest_distances(self):
         distances = {node: NodeData(float("inf"), None, float("inf")) for node in self.graph}
@@ -44,10 +47,15 @@ class Graph:
         while pq:
             current_distance, current_node = heappop(pq)
 
-            if current_node in visited and self.check_not_reserved(current_node): #to add here later the available and capacity
+            if current_node in visited:
                 continue
-
             visited.add(current_node)
+
+
+            # print(self.check_available_time(current_node, distances))
+            if not self.check_available_time(current_node, distances):
+                distances[current_node].time += 1
+                heappush(pq, (current_distance + 1, current_node))
 
             for neighbor, weight in self.graph[current_node].items():
                 next_node_distance = current_distance + weight
@@ -92,7 +100,6 @@ class Graph:
         while work_hub is not None:
             self.reserved.append((work_hub, distance[work_hub].time))
             work_hub = distance[work_hub].origin
-        print(self.reserved)
 
 
 
