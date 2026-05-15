@@ -77,54 +77,9 @@ def main():
 
 
     from .dijkstra_solver import Graph
-    g = Graph()
+    g = Graph(my_map)
     g.dijkstra_init(my_map, start, end)
-    ditances = g.shortest_distances()
-    path = g.get_pathway(ditances)
-    g.do_reservation(ditances)
-
-    display = Displayer(my_map, drone)
-    display.reset()
-    display.draw_hubs()
-    pygame.display.flip()
-
-    my_drones = [
-        Drone(my_map, start, display.drone_img)
-        for x in range(my_map["nb_drones"])
-    ]
-
-    # Assign path to first drone
-    my_drones[0].path = path
     
-    # Set initial drone positions for movement
-    for i, hub_name in enumerate(my_drones[0].path[:-1]):
-        my_drones[0].next = (my_map[my_drones[0].path[i + 1]].x, my_map[my_drones[0].path[i + 1]].y)
-    
-    the_clock = pygame.time.Clock()
-    
-    running = True
-    path_index = 0
-    
-    while running:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_q:
-                    running = False
-        
-        # Move drone through each hub on its path
-        if path_index < len(my_drones[0].path) - 1:
-            my_drones[0].next = (
-                my_map[my_drones[0].path[path_index + 1]].x,
-                my_map[my_drones[0].path[path_index + 1]].y
-            )
-            display.move_drones([my_drones[0]], the_clock)
-            path_index += 1
-        else:
-            # Affichage final une fois arrivé
-            display.display_drones([drone.coord for drone in my_drones])
-            pygame.display.flip()
 
 
 if __name__ == "__main__":

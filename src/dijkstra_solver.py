@@ -16,14 +16,20 @@ class NodeData:
     time: int | float
 
 class Graph:
-    def __init__(self, graph: dict = {}):
-        self.graph = graph
+    def __init__(self, my_map):
+        self.graph = {}
         self.solutions = [] #a list of all solutions for each drone different pathway
         self.reserved = []
+        self.my_map = my_map
         # Start with the reservation table
-        # to see how to do the reservation table
         # to see max hub capacity
         # to see max link capacity
+
+    def check_not_reserved(self, current_node):
+        check_tuple = (current_node, current_node.time + 1)
+        if self.reserved.count(check_tuple) < self.my_map[current_node].max_drone:
+            return False
+        return True
 
     def shortest_distances(self):
         distances = {node: NodeData(float("inf"), None, float("inf")) for node in self.graph}
@@ -38,10 +44,9 @@ class Graph:
         while pq:
             current_distance, current_node = heappop(pq)
 
-            if current_node in visited : #to add here later the available and capacity
+            if current_node in visited and self.check_not_reserved(current_node): #to add here later the available and capacity
                 continue
-            # if self.reserved.count((current_node, current_node.time + 1)) < to do a function check 
-            # with my map and max capacity of xurrent node to see if bigger than it's value or no
+
             visited.add(current_node)
 
             for neighbor, weight in self.graph[current_node].items():
@@ -75,7 +80,7 @@ class Graph:
         path = []
 
         while goal is not None:
-            path.append(goal)
+            path.append((goal, distance[goal].time))
             goal = distance[goal].origin
         path = path[::-1]
         return path
