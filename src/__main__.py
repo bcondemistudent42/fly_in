@@ -35,12 +35,13 @@ def main():
 
     g = Graph(my_map)
     g.dijkstra_init(my_map, start, end)
-    distances = []
     paths = []
     for _ in range(my_map["nb_drones"]):
-        g.do_reservation(distances)
-        distances, path = g.shortest_distances()
-        paths.append(path)
+        path = g.shortest_distances()
+        print(path)
+        g.do_reservation(path)
+        reversed_inside_path = map(lambda s: (s[1], s[0]), path)
+        paths.append(list(reversed_inside_path))
         # print(path)
 
 
@@ -167,10 +168,10 @@ def main():
 
 
 if __name__ == "__main__":
-    try:
+    # try:
         main()
-    except BaseException as e:
-        print(e)
+    # except BaseException as e:
+        # print(e)
 
 
 # URGENT GERER LEX MAX LINKS PROPREMENT

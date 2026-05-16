@@ -12,7 +12,7 @@ class Connection:
 @dataclass
 class NodeData:
     cost: int | float
-    origin: str | None
+    origin: list
     time: int | float
 
 class Graph:
@@ -45,9 +45,9 @@ class Graph:
 
     def shortest_distances(self):
         # print(f"reserved =={self.reserved}")
-        distances = {node: NodeData(float("inf"), None, float("inf")) for node in self.graph}
+        distances = {node: NodeData(float("inf"), [], float("inf")) for node in self.graph}
         # to see if it's good to put float("inf") as time default value
-        distances[self.start] = NodeData(0, None, 0)
+        distances[self.start] = NodeData(0, [None], 0)
 
         pq = [(0, self.start)]
         heapify(pq)
@@ -79,7 +79,7 @@ class Graph:
 
                 if next_node_distance < distances[neighbor].cost:
                     distances[neighbor].cost = next_node_distance
-                    distances[neighbor].origin = current_node
+                    distances[neighbor].origin.append((distances[current_node].time, current_node))
                     distances[neighbor].time = distances[current_node].time + 1
 
                     # reset node function with value before the assignation
@@ -93,6 +93,7 @@ class Graph:
                         
                         continue
                     if len(pq) == 0 and self.all_unavailable(lst_neighbor, distances):
+                        distances[current_node].origin.append((distances[current_node].time, current_node))
                         distances[current_node].time += 1
                         heappush(pq, (current_distance + 1, current_node))
                     else:
@@ -100,7 +101,7 @@ class Graph:
 
         if distances[self.end].origin is None:
             raise ValueError("Error: Unsolvable map")
-        return distances, self.get_pathway(distances)
+        return self.get_pathway(distances)
 
 
     def dijkstra_init(self, my_map, start, end):
@@ -120,27 +121,20 @@ class Graph:
         goal = self.end
         path = []
 
-        while goal is not None:
-            path.append((goal, distance[goal].time))
-            goal = distance[goal].origin
-            if goal is not None:
-                if path[-1][1] - distance[goal].time != 1:
-                    distance[goal].time = path[-1][1] - 1
-                    while path[-1][1] - distance[goal].time != 1:
-                        path.append((goal, distance[goal].time))
-                        distance[goal].time -= 1
+        path.append((distance[self.end].time ,self.end))
+        while distance[goal].origin[0] is not None:
+            for hub in distance[goal].origin:
+                path.append(hub)
+            goal = distance[goal].origin[-1][1]
 
-        path = path[::-1]
-        return path
+        return sorted(path)
 
 
-    def do_reservation(self, distance):
-        work_hub = self.end
+    def do_reservation(self, distance: list):
         if len(distance) == 0:
             return
-        while work_hub is not None:
-            self.reserved.append((work_hub, distance[work_hub].time))
-            work_hub = distance[work_hub].origin
+        for elt in distance:
+            self.reserved.append((elt[1], elt[0]))
 
 
 def convert_to_connection(my_map):
