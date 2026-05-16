@@ -123,6 +123,13 @@ class Graph:
         while goal is not None:
             path.append((goal, distance[goal].time))
             goal = distance[goal].origin
+            if goal is not None:
+                if path[-1][1] - distance[goal].time != 1:
+                    distance[goal].time = path[-1][1] - 1
+                    while path[-1][1] - distance[goal].time != 1:
+                        path.append((goal, distance[goal].time))
+                        distance[goal].time -= 1
+
         path = path[::-1]
         return path
 

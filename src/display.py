@@ -9,6 +9,7 @@ import pygame  # noqa: E402
 class Displayer:
     def __init__(self, my_map, drone_img) -> None:
         pygame.init()
+        pygame.font.init()
         info = pygame.display.Info()
 
         width, height = 3 * (info.current_w / 4), 3 * (info.current_h / 4)
@@ -29,6 +30,7 @@ class Displayer:
             pygame.image.load("visual_drones/" + drone_img).convert_alpha(),
             (45, 45),
         )
+        self.font = pygame.font.SysFont(None, 20)
         self.drones = []
 
         self.math_utils(x_max, x_min, y_max, y_min)
@@ -101,13 +103,40 @@ class Displayer:
             except ValueError:
                 raise ValueError(f"This is not a color: '{elt.color}'")
 
-    def display_drones(self, drones_positions):
+    def display_drones(self, drones_positions, drones_list):
         self.reset()
         self.draw_hubs()
         for pos in drones_positions:
-            self.screen.blit(self.drone_img, (pos[0], pos[1]))
+            # ensure integer pixel positions when blitting
+            x = int(pos[0])
+            y = int(pos[1])
+            self.screen.blit(self.drone_img, (x, y))
 
-    def move_drones(self, drones, the_clock):
+        mx, my = pygame.mouse.get_pos()
+        for key, elt in self.my_map.items():
+            if isinstance(elt, Hubs):
+                hx, hy = elt.x, elt.y
+                if hx <= mx <= hx + self.size and hy <= my <= hy + self.size:
+                    # count drones whose host_hub matches this key
+                    count = sum(1 for d in drones_list if getattr(d, "host_hub", None) == key)
+                    max_count = getattr(elt, "max_drone", None)
+
+                    cur_surf = self.font.render(str(count), True, (0, 150, 0))
+                    if max_count is None:
+                        max_surf = self.font.render("/", True, (0, 0, 0))
+                    else:
+                        max_surf = self.font.render(f"/{max_count}", True, (0, 0, 0))
+
+                    # background rect to improve readability
+                    total_width = cur_surf.get_width() + max_surf.get_width()
+                    rect = pygame.Rect(hx + self.size + 4, hy, total_width, max(cur_surf.get_height(), max_surf.get_height()))
+                    pygame.draw.rect(self.screen, (255, 255, 255), rect)
+                    # blit current then suffix
+                    self.screen.blit(cur_surf, rect.topleft)
+                    self.screen.blit(max_surf, (rect.left + cur_surf.get_width(), rect.top))
+                    break
+
+    def move_drones(self, drones, the_clock, pause_ms: int = 400):
         positions = [pygame.Vector2(drone.coord) for drone in drones]
         destinations = [pygame.Vector2(drone.next) for drone in drones]
 
@@ -134,12 +163,34 @@ class Displayer:
                 if positions[i].distance_to(destinations[i]) > vitesse:
                     positions[i] += directions[i] * vitesse
 
-            self.display_drones([pos for pos in positions])
+            self.display_drones([pos for pos in positions], drones)
             pygame.display.flip()
             the_clock.tick(60)
 
-        self.display_drones([dest for dest in destinations])
+        self.display_drones([dest for dest in destinations], drones)
         pygame.display.flip()
 
         for i, drone in enumerate(drones):
             drone.coord = (destinations[i].x, destinations[i].y)
+            # assign host_hub when a drone arrives inside a hub rectangle
+            for key, elt in self.my_map.items():
+                if isinstance(elt, Hubs):
+                    hx, hy = elt.x, elt.y
+                    if hx <= drone.coord[0] <= hx + self.size and hy <= drone.coord[1] <= hy + self.size:
+                        drone.host_hub = key
+                        break
+
+        # small pause after arrival so the user can see drones on the hub
+        start_ticks = pygame.time.get_ticks()
+        while pygame.time.get_ticks() - start_ticks < pause_ms:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    return
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_q:
+                    pygame.quit()
+                    return
+            # redraw to keep hover info responsive
+            self.display_drones([dest for dest in destinations], drones)
+            pygame.display.flip()
+            the_clock.tick(60)
