@@ -38,7 +38,7 @@ def main():
     paths = []
     for _ in range(my_map["nb_drones"]):
         path = g.shortest_distances()
-        # print(path)
+        print(path)
         g.do_reservation(path)
         reversed_inside_path = map(lambda s: (s[1], s[0]), path)
         paths.append(list(reversed_inside_path))
