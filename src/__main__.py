@@ -38,11 +38,10 @@ def main():
     paths = []
     for _ in range(my_map["nb_drones"]):
         path = g.shortest_distances()
-        print(path)
+        # print(path)
         g.do_reservation(path)
         reversed_inside_path = map(lambda s: (s[1], s[0]), path)
         paths.append(list(reversed_inside_path))
-        # print(path)
 
 
     display = Displayer(my_map, drone)
@@ -53,11 +52,9 @@ def main():
 
     drones = [Drone(my_map, start) for _ in range(my_map["nb_drones"])]
 
-
     for drone, path in zip(drones, paths):
         drone.path = path
         drone.path_index = 0
-        # place drone at the visual center of the start hub
         sx = my_map[start].x + (display.size - display.drone_img.get_width()) / 2
         sy = my_map[start].y + (display.size - display.drone_img.get_height()) / 2
         drone.coord = (sx, sy)
@@ -86,6 +83,8 @@ def main():
         for _, t in p:
             if t > max_time:
                 max_time = t
+
+    print(max_time) #the total turn i did
 
     clock = pygame.time.Clock()
 
@@ -178,3 +177,4 @@ if __name__ == "__main__":
 
 # to handle when fisrt connection after start have max drone at 0
 # to handle when max_links < max_capacity dron still goiing but should not
+# to finalize: handle links, handle restricted zone, when betwee error when first node is blocked

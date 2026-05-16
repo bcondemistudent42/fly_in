@@ -112,29 +112,34 @@ class Displayer:
             y = int(pos[1])
             self.screen.blit(self.drone_img, (x, y))
 
-        mx, my = pygame.mouse.get_pos()
+        # Always display the number of drones per hub (current / capacity)
         for key, elt in self.my_map.items():
             if isinstance(elt, Hubs):
                 hx, hy = elt.x, elt.y
-                if hx <= mx <= hx + self.size and hy <= my <= hy + self.size:
-                    # count drones whose host_hub matches this key
-                    count = sum(1 for d in drones_list if getattr(d, "host_hub", None) == key)
-                    max_count = getattr(elt, "max_drone", None)
+                # count drones physically inside this hub rectangle (so count updates during movement)
+                def _in_hub(d):
+                    try:
+                        cx, cy = d.coord
+                    except Exception:
+                        return False
+                    return hx <= cx <= hx + self.size and hy <= cy <= hy + self.size
 
-                    cur_surf = self.font.render(str(count), True, (0, 150, 0))
-                    if max_count is None:
-                        max_surf = self.font.render("/", True, (0, 0, 0))
-                    else:
-                        max_surf = self.font.render(f"/{max_count}", True, (0, 0, 0))
+                count = sum(1 for d in drones_list if _in_hub(d))
+                max_count = getattr(elt, "max_drone", None)
 
-                    # background rect to improve readability
-                    total_width = cur_surf.get_width() + max_surf.get_width()
-                    rect = pygame.Rect(hx + self.size + 4, hy, total_width, max(cur_surf.get_height(), max_surf.get_height()))
-                    pygame.draw.rect(self.screen, (255, 255, 255), rect)
-                    # blit current then suffix
-                    self.screen.blit(cur_surf, rect.topleft)
-                    self.screen.blit(max_surf, (rect.left + cur_surf.get_width(), rect.top))
-                    break
+                cur_surf = self.font.render(str(count), True, (0, 0, 0))
+                if max_count is None:
+                    max_surf = self.font.render("/", True, (0, 0, 0))
+                else:
+                    max_surf = self.font.render(f"/{max_count}", True, (0, 0, 0))
+
+                # background rect to improve readability
+                total_width = cur_surf.get_width() + max_surf.get_width()
+                rect = pygame.Rect(hx + self.size + 4, hy, total_width + 6, max(cur_surf.get_height(), max_surf.get_height()) + 4)
+                pygame.draw.rect(self.screen, (255, 255, 255), rect)
+                # blit current then suffix with small padding
+                self.screen.blit(cur_surf, (rect.left + 3, rect.top + 2))
+                self.screen.blit(max_surf, (rect.left + 3 + cur_surf.get_width(), rect.top + 2))
 
     def move_drones(self, drones, the_clock, pause_ms: int = 400):
         positions = [pygame.Vector2(drone.coord) for drone in drones]

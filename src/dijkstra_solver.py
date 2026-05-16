@@ -61,12 +61,6 @@ class Graph:
                 continue
             visited.add((current_node, distances[current_node].time))
 
-
-            # print(self.check_available_time(current_node, distances))
-            # if self.check_available_time(current_node, distances) is False:
-            #     distances[current_node].time += 1
-            #     heappush(pq, (current_distance + 1, current_node))
-
             lst_neighbor = []
             for neighbor, weight in self.graph[current_node].items():
                 lst_neighbor.append(neighbor)
@@ -86,12 +80,12 @@ class Graph:
                     if self.is_available(neighbor, distances) is False:
                         distances[neighbor].cost = temp_cost
                         distances[neighbor].origin = temp_origin
-                        distances[neighbor].time = temp_time + 1
-                        
+                        distances[neighbor].time = temp_time
+
                         distances[current_node].time += 1
                         heappush(pq, (current_distance + 1, current_node))
-                        
                         continue
+
                     if len(pq) == 0 and self.all_unavailable(lst_neighbor, distances):
                         distances[current_node].origin.append((distances[current_node].time, current_node))
                         distances[current_node].time += 1
