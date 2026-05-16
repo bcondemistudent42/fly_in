@@ -143,31 +143,6 @@ class Graph:
             work_hub = distance[work_hub].origin
 
 
-
-    # def get_pathway_clean(self, distance): to see for more
-    #     path = []
-    #     visited = set()
-    #     max_steps = len(self.graph) + 1
-    #     step_count = 0
-        
-    #     current_node = self.end
-
-    #     while current_node is not None:
-    #         if current_node in visited:
-    #             raise ValueError(f"Cycle detected in path at node '{current_node}'")
-    #         if step_count > max_steps:
-    #             raise ValueError(f"Path reconstruction exceeded max steps ({max_steps})")
-            
-    #         visited.add(current_node)
-    #         path.append(current_node)
-    #         current_node = distance[current_node].origin
-    #         step_count += 1
-    #     if path[-1] != self.start:
-    #         raise ValueError(f"Path does not reach start node '{self.start}'")
-    #     path.reverse()
-    #     return path
-
-
 def convert_to_connection(my_map):
     output = []
     for elt in my_map.values():

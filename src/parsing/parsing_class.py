@@ -45,6 +45,8 @@ class Hubs:
             self.max_drone = 1
         else:
             self.max_drone = int(max_capacity)
+        if self.max_drone <= 0:
+            raise ValueError("Can't have a hub with 0 max capacity")
 
         if color is None or color == "rainbow":
             self.color = "white"
