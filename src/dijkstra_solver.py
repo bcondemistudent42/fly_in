@@ -82,7 +82,6 @@ class Graph:
                         distances[neighbor].origin = temp_origin
                         distances[neighbor].time = temp_time
 
-                        distances[current_node].time += 1
                         heappush(pq, (current_distance + 1, current_node))
                         continue
 
