@@ -175,6 +175,8 @@ if __name__ == "__main__":
 
 # URGENT GERER LEX MAX LINKS PROPREMENT
 
+# to fix algorithm, only with output now with display, analyse output and see why it's
+# not goiin in the crashing
 # to handle when fisrt connection after start have max drone at 0
-# to handle when max_links < max_capacity dron still goiing but should not
-# to finalize: handle links, handle restricted zone, when betwee error when first node is blocked
+# to handle when max_links < max_capacity links drones still goiing but should not
+# handle restricted zone with display
