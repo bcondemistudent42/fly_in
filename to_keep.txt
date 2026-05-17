@@ -1,7 +1,7 @@
-from heapq import heapify, heappop, heappush
 from .parsing.parsing_class import Hubs
 
 from dataclasses import dataclass
+
 
 @dataclass
 class Connection:
@@ -9,17 +9,20 @@ class Connection:
     hub_2: str
     capacity: int
 
+
 @dataclass
 class NodeData:
     cost: int | float
     origin: list
     time: int | float
 
+
 class Graph:
     def __init__(self, my_map):
         self.graph = {}
-        self.solutions = [] #a list of all solutions for each drone different pathway
+        self.solutions = []  # a list of all solutions for each drone different pathway
         self.reserved = []
+        self.connections = []
         self.my_map = my_map
         # Start with the reservation table
         # to see max hub capacity
@@ -30,7 +33,10 @@ class Graph:
         # print(check_tuple)
         # print(self.reserved)
         # print()
-        if self.reserved.count(check_tuple) < self.my_map[current_node].max_drone:
+        if (
+            self.reserved.count(check_tuple)
+            < self.my_map[current_node].max_drone
+        ):
             return True
         return False
 
@@ -42,10 +48,12 @@ class Graph:
             return True
         return False
 
-
     def shortest_distances(self):
         # print(f"reserved =={self.reserved}")
-        distances = {node: NodeData(float("inf"), [], float("inf")) for node in self.graph}
+        distances = {
+            node: NodeData(float("inf"), [], float("inf"))
+            for node in self.graph
+        }
         # to see if it's good to put float("inf") as time default value
         distances[self.start] = NodeData(0, [None], 0)
 
@@ -64,7 +72,6 @@ class Graph:
             lst_neighbor = []
             for neighbor, weight in self.graph[current_node].items():
                 lst_neighbor.append(neighbor)
-            for neighbor, weight in self.graph[current_node].items():
 
                 next_node_distance = current_distance + weight
 
@@ -74,31 +81,40 @@ class Graph:
 
                 if next_node_distance < distances[neighbor].cost:
                     distances[neighbor].cost = next_node_distance
-                    distances[neighbor].origin.append((distances[current_node].time, current_node))
+                    distances[neighbor].origin.append(
+                        (distances[current_node].time, current_node)
+                    )
                     distances[neighbor].time = distances[current_node].time + 1
 
-                    if self.all_unavailable(lst_neighbor, distances):
-                        distances[current_node].origin.append((distances[current_node].time, current_node))
-                        distances[current_node].time += 1
-                        heappush(pq, (current_distance + 1, current_node))
-
-                    if self.is_available(neighbor, distances) is False:
+                    # function to check links
+                    check_connection = self.connection_available(current_node, neighbor, distances[current_node].time)
+                    if not self.is_available(neighbor, distances) or not check_connection:
                         distances[neighbor].cost = temp_cost
                         distances[neighbor].origin = temp_origin
                         distances[neighbor].time = temp_time
+
+                        distances[current_node].time += 1
+                        heappush(pq, (current_distance + 1, current_node))
                         continue
 
+                    if len(pq) == 0 and self.all_unavailable(
+                        lst_neighbor, distances
+                    ):
+                        distances[current_node].origin.append(
+                            (distances[current_node].time, current_node)
+                        )
+                        distances[current_node].time += 1
+                        heappush(pq, (current_distance + 1, current_node))
                     else:
                         heappush(pq, (next_node_distance, neighbor))
 
-        if len(distances[self.end].origin) == 0:
+        if distances[self.end].origin is None:
             raise ValueError("Error: Unsolvable map")
         return self.get_pathway(distances)
 
-
     def dijkstra_init(self, my_map, start, end):
         hub_lst = [x for x in my_map.values() if isinstance(x, Hubs)]
-        
+
         my_dict = {}
         for hub in hub_lst:
             my_dict[hub.name] = {}
@@ -113,7 +129,7 @@ class Graph:
         goal = self.end
         path = []
 
-        path.append((distance[self.end].time ,self.end))
+        path.append((distance[self.end].time, self.end))
         while distance[goal].origin[0] is not None:
             for hub in distance[goal].origin:
                 path.append(hub)
@@ -121,11 +137,26 @@ class Graph:
 
         return sorted(path)
 
+    def connection_available(self, current_node, neighbor, time):
+        conected_to = self.my_map[current_node].links["weight"]
+        if len(conected_to)
+        for elt in conected_to:
+            if elt[1] == neighbor:
+                nbr_used_by = self.connections.count((current_node, neighbor, time))
+                if nbr_used_by < elt[0]:
+                    return True
+                else:
+                    return False
+        return False
+
+
     def do_reservation(self, distance: list):
         if len(distance) == 0:
             return
-        for elt in distance:
-            self.reserved.append((elt[1], elt[0]))
+        for i in range(len(distance) - 1):
+            self.reserved.append((distance[i][1], distance[i][0]))
+            # self.connections.append(distance[i][0])
+            self.connections.append((distance[i][1], distance[i + 1][1], distance[i][0]))
 
 
 def convert_to_connection(my_map):
