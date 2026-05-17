@@ -1,4 +1,4 @@
-from heapq import heapify, heappop, heappush
+from heapq import heappop, heappush
 from .parsing.parsing_class import Hubs
 
 from dataclasses import dataclass
@@ -25,11 +25,8 @@ class Graph:
         # to see max hub capacity
         # to see max link capacity
 
-    def is_available(self, current_node, distances):
-        check_tuple = (current_node, distances[current_node].time)
-        # print(check_tuple)
-        # print(self.reserved)
-        # print()
+    def is_available(self, current_node, at_time):
+        check_tuple = (current_node, at_time)
         if self.reserved.count(check_tuple) < self.my_map[current_node].max_drone:
             return True
         return False
@@ -44,56 +41,46 @@ class Graph:
 
 
     def shortest_distances(self):
-        # print(f"reserved =={self.reserved}")
-        distances = {node: NodeData(float("inf"), [], float("inf")) for node in self.graph}
-        # to see if it's good to put float("inf") as time default value
-        distances[self.start] = NodeData(0, [None], 0)
-
-        pq = [(0, self.start)]
-        heapify(pq)
-
-        visited = set()
+        max_time = len(self.graph) * (self.my_map["nb_drones"] + len(self.reserved) + 2)
+        pq = [(0, 0, self.start)]
+        distances = {(self.start, 0): 0}
+        previous = {(self.start, 0): None}
 
         while pq:
-            current_distance, current_node = heappop(pq)
-
-            if (current_node, distances[current_node].time) in visited:
+            current_cost, current_time, current_node = heappop(pq)
+            state = (current_node, current_time)
+            if current_cost != distances.get(state):
                 continue
-            visited.add((current_node, distances[current_node].time))
 
-            lst_neighbor = []
+            if current_node == self.end:
+                return self.get_pathway(previous, state)
+
+            if current_time >= max_time:
+                continue
+
+            next_time = current_time + 1
+
+            if self.is_available(current_node, next_time):
+                wait_state = (current_node, next_time)
+                wait_cost = current_cost + 1
+                if wait_cost < distances.get(wait_state, float("inf")):
+                    distances[wait_state] = wait_cost
+                    previous[wait_state] = state
+                    heappush(pq, (wait_cost, next_time, current_node))
+
             for neighbor, weight in self.graph[current_node].items():
-                lst_neighbor.append(neighbor)
-            for neighbor, weight in self.graph[current_node].items():
+                if weight == float("inf"):
+                    continue
+                if self.is_available(neighbor, next_time) is False:
+                    continue
+                next_state = (neighbor, next_time)
+                next_cost = current_cost + weight
+                if next_cost < distances.get(next_state, float("inf")):
+                    distances[next_state] = next_cost
+                    previous[next_state] = state
+                    heappush(pq, (next_cost, next_time, neighbor))
 
-                next_node_distance = current_distance + weight
-
-                temp_cost = distances[neighbor].cost
-                temp_origin = distances[neighbor].origin
-                temp_time = distances[neighbor].time
-
-                if next_node_distance < distances[neighbor].cost:
-                    distances[neighbor].cost = next_node_distance
-                    distances[neighbor].origin.append((distances[current_node].time, current_node))
-                    distances[neighbor].time = distances[current_node].time + 1
-
-                    if self.all_unavailable(lst_neighbor, distances):
-                        distances[current_node].origin.append((distances[current_node].time, current_node))
-                        distances[current_node].time += 1
-                        heappush(pq, (current_distance + 1, current_node))
-
-                    if self.is_available(neighbor, distances) is False:
-                        distances[neighbor].cost = temp_cost
-                        distances[neighbor].origin = temp_origin
-                        distances[neighbor].time = temp_time
-                        continue
-
-                    else:
-                        heappush(pq, (next_node_distance, neighbor))
-
-        if len(distances[self.end].origin) == 0:
-            raise ValueError("Error: Unsolvable map")
-        return self.get_pathway(distances)
+        raise ValueError("Error: Unsolvable map")
 
 
     def dijkstra_init(self, my_map, start, end):
@@ -109,16 +96,13 @@ class Graph:
         self.start = start
         self.end = end
 
-    def get_pathway(self, distance):
-        goal = self.end
+    def get_pathway(self, previous, goal_state):
         path = []
-
-        path.append((distance[self.end].time ,self.end))
-        while distance[goal].origin[0] is not None:
-            for hub in distance[goal].origin:
-                path.append(hub)
-            goal = distance[goal].origin[-1][1]
-
+        current_state = goal_state
+        while current_state is not None:
+            node, time = current_state
+            path.append((time, node))
+            current_state = previous[current_state]
         return sorted(path)
 
 
