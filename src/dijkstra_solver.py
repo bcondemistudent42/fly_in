@@ -64,6 +64,7 @@ class Graph:
             lst_neighbor = []
             for neighbor, weight in self.graph[current_node].items():
                 lst_neighbor.append(neighbor)
+            for neighbor, weight in self.graph[current_node].items():
 
                 next_node_distance = current_distance + weight
 
@@ -76,24 +77,21 @@ class Graph:
                     distances[neighbor].origin.append((distances[current_node].time, current_node))
                     distances[neighbor].time = distances[current_node].time + 1
 
-                    # reset node function with value before the assignation
+                    if self.all_unavailable(lst_neighbor, distances):
+                        distances[current_node].origin.append((distances[current_node].time, current_node))
+                        distances[current_node].time += 1
+                        heappush(pq, (current_distance + 1, current_node))
+
                     if self.is_available(neighbor, distances) is False:
                         distances[neighbor].cost = temp_cost
                         distances[neighbor].origin = temp_origin
                         distances[neighbor].time = temp_time
-
-                        # distances[current_node].time += 1
-                        heappush(pq, (current_distance + 1, current_node))
                         continue
 
-                    if len(pq) == 0 and self.all_unavailable(lst_neighbor, distances):
-                        distances[current_node].origin.append((distances[current_node].time, current_node))
-                        distances[current_node].time += 1
-                        heappush(pq, (current_distance + 1, current_node))
                     else:
                         heappush(pq, (next_node_distance, neighbor))
 
-        if distances[self.end].origin is None:
+        if len(distances[self.end].origin) == 0:
             raise ValueError("Error: Unsolvable map")
         return self.get_pathway(distances)
 
